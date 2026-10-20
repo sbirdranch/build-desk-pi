@@ -7,7 +7,9 @@ Type=simple
 WorkingDirectory=%h/build-desk/web
 Environment=NODE_ENV=production
 Environment=PORT=4174
-Environment=BUILDDESK_HOST=127.0.0.1
+Environment=BUILDDESK_HOST=0.0.0.0
+Environment=BUILDDESK_LAN_SUBNET=192.168.0.0/24
+Environment=BUILDDESK_LAN_HOSTS=192.168.0.119:4174
 Environment=BUILDDESK_REGISTRY=%h/build-desk/local-data/builds.pi.json
 Environment=NODE_OPTIONS=--max-old-space-size=512
 Environment=PATH=%h/.local/node/bin:/usr/local/bin:/usr/bin:/bin

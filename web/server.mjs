@@ -1,4 +1,5 @@
 import next from 'next';
+import {createClientAccessPolicy,setClientAccessHeaders} from '../tools/client-access.mjs';
 import {startupOrderQueues} from '../tools/order-queue.mjs';
 import http from 'node:http';
 import {randomBytes} from 'node:crypto';
@@ -10,6 +11,7 @@ import {startPrinterMonitors} from '../tools/printer-monitor.mjs';
 const dev=process.argv.includes('--dev');
 const port=Number(process.env.PORT||4174);
 const host=process.env.BUILDDESK_HOST||'127.0.0.1';
+const clientAccess=createClientAccessPolicy();
 process.env.BUILDDESK_EDIT_TOKEN=randomBytes(32).toString('hex');
 const app=next({dev,hostname:host,port});
 await app.prepare();
@@ -19,8 +21,6 @@ await startPrinterMonitors(projectRoot,process.env.BUILDDESK_REGISTRY||path.join
 void startupOrderQueues(projectRoot,process.env.BUILDDESK_REGISTRY||path.join(projectRoot,'config/builds.json'));
 const handler=app.getRequestHandler();
 http.createServer((req,res)=>{
-  // Set from the actual socket; never trust forwarded client headers.
-  const address=req.socket.remoteAddress||'';
-  req.headers['x-builddesk-local']=['127.0.0.1','::1','::ffff:127.0.0.1'].includes(address)?'1':'0';
+  setClientAccessHeaders(req,clientAccess);
   handler(req,res);
-}).listen(port,host,()=>console.log(`Build Desk: http://${host}:${port} (use SSH forwarding for Windows editing)`));
+}).listen(port,host,()=>console.log(`Build Desk Pi: http://${host}:${port} (${process.env.BUILDDESK_LAN_SUBNET?'configured home-network editing':'loopback editing'})`));

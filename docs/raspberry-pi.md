@@ -66,15 +66,19 @@ journalctl -u build-desk -n 50 --no-pager
 
 The foreground service starts `web/server.mjs` directly; systemd owns its PID and logs. Use `sudo systemctl restart build-desk` for production service restarts. Do not also run the detached launcher while the systemd service is active. For a manual installation instead, set `BUILDDESK_REGISTRY` to the absolute Pi registry path and run `node tools/start-app.mjs --restart`. The launchers support `PORT` for isolated validation; their default remains 4174. The 512 MiB service heap is an initial limit, not a measured capacity guarantee.
 
-## Edit from Windows using SSH
+## Direct HTTP access from the home network
 
-The Pi fork defaults to listening on loopback. In Windows PowerShell, a manually authenticated tunnel can be kept running with:
+Open **http://192.168.0.119:4174/** directly. This replaces the initial SSH-tunnel access on localhost port 4176. No tunnel or client key is required for browsing or editing. The optional Windows launcher now checks the direct health endpoint and opens this address; it does not start SSH.
 
-```powershell
-ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -L 127.0.0.1:4176:127.0.0.1:4174 preston@192.168.0.119
+The deployed systemd unit sets:
+
+```ini
+Environment=BUILDDESK_HOST=0.0.0.0
+Environment=BUILDDESK_LAN_SUBNET=192.168.0.0/24
+Environment=BUILDDESK_LAN_HOSTS=192.168.0.119:4174
 ```
 
-Open **http://127.0.0.1:4176/** in the Windows browser. Local port 4176 avoids conflicting with the original Windows app on 4174. SSH authenticates the user and encrypts traffic; the Pi sees a loopback socket, so existing edit tokens and same-origin checks continue to apply. Forwarded client headers still cannot grant editing. Keep the tunnel terminal open. Confirm the Pi hostname and SSH host key during initial setup. Direct LAN access is disabled by default; setting `BUILDDESK_HOST=0.0.0.0` enables the existing read-only LAN view, not remote editing. Do not expose the app or an unauthenticated reverse proxy to the Internet.
+The server derives editing eligibility from the actual socket address and configured Host allowlist. Loopback still works for local controls. The explicit LAN policy allows editing only from the configured subnet using the configured site address. Clients cannot grant themselves access with forwarded or internal headers. The process edit token and same-origin save checks remain in force. Archived builds and narrow-screen layouts retain their existing read-only behavior. Without the LAN settings, the code keeps its original loopback-only editing default. No router port forwarding was added.
 
 ## Acceptance and rollback
 
@@ -107,12 +111,6 @@ NAS source files were not copied or moved. The existing `//IBFNAS.local/Preston`
 
 Use `systemctl --user status build-desk` and `systemctl --user restart build-desk` after logging in as `preston`. Logs are `local-data/service.log` and `local-data/service.err.log`; the Pi's user journal was unavailable during setup. The unit is enabled under the user's `default.target`. The user ran `sudo loginctl enable-linger preston`, and `loginctl show-user preston -p Linger` returned `Linger=yes`. This configures service startup at boot without login. The NAS automount is also enabled for boot. Reboot acceptance still requires an actual reboot.
 
-For Windows access, double-click `Open-Pi-Build-Desk.cmd` or run `node tools/open-pi.mjs --open` from the Windows checkout. It reuses an existing responsive tunnel or opens a background tunnel using the Windows-user-owned key. Passwordless authentication and tunnel startup/reuse were tested under the user's Windows account. The agent's separate `pi-deploy-key` belongs to its sandbox account; user commands must use `pi-user-key`.
+For ordinary access, bookmark **http://192.168.0.119:4174/** on any home-network device. Double-clicking the optional Desktop `Open-Pi-Build-Desk.cmd` or running `node tools/open-pi.mjs --open` checks the Pi and opens the same direct address. There is no SSH tunnel to start or maintain. The old Windows app on port 4174 remains stopped; the Pi's IP address distinguishes this service from Windows localhost.
 
-For a manual tunnel from the local `build-desk-pi` checkout:
-
-```powershell
-ssh -N -i .\local-data\pi-user-key -o UserKnownHostsFile=local-data/pi-known-hosts -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -L 127.0.0.1:4176:127.0.0.1:4174 preston@192.168.0.119
-```
-
-Open **http://127.0.0.1:4176/**. This address goes through the tunnel to the Pi. The old Windows app on port 4174 is stopped; use the Pi launcher rather than the old Windows server launcher. Do not start a second tunnel if port 4176 is already forwarded. The detached tunnel records its Windows PID in ignored `local-data/pi-user-tunnel.pid` and errors in `local-data/pi-user-tunnel.err.log`. After Windows reboots or the SSH connection drops, run the Pi launcher again. Private keys and all connection credentials remain outside Git.
+SSH keys remain in ignored storage for administration. Windows user commands use `local-data/pi-user-key`; the agent has its separate sandbox-owned deployment key. The old localhost tunnel is no longer needed for this application.

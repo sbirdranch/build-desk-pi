@@ -1,5 +1,11 @@
 # Build Desk 0.2.0 implementation report
 
+## Direct home-network HTTP — October 20, 2026
+
+Replaced required SSH-tunnel access with direct HTTP at `http://192.168.0.119:4174/`. The deployed service binds IPv4 interfaces and explicitly permits editors from the configured home subnet using the configured IP/port Host. The Node server derives separate host-local and editor headers from the real socket, replacing any client-supplied values. LAN editors receive the existing edit token; same-origin, token, archived-build, workbook and audit safeguards remain in force. Process IDs remain host-local. Four new tests cover default isolation, configured subnet/Host matching, forged headers, invalid configuration and origin/token rejection. The Windows launcher now opens the direct URL without SSH.
+
+All 54 tests passed on Windows and on the actual Pi, including the real-workbook clone round trip. TypeScript and the Pi production build passed. Deployment used `tools/start-app.mjs --restart` before returning to the enabled user service. The server was verified listening on `0.0.0.0:4174`. Direct LAN API acceptance on a disposable tracker returned 200 for a save, created one backup, replayed the same request without another save, and preserved jobs/accepted totals. Foreign origins and missing tokens returned 403; forged Host/access headers yielded no edit token. LAN health responses omitted the process ID. The disposable server was stopped. The production workbook matched its pre-deployment checksum. The obsolete Windows SSH tunnel was closed, and direct access plus the updated launcher continued working.
+
 ## Pi edition branding — October 20, 2026
 
 The application is presented as **Build Desk Pi** in its header (with a green Pi badge), browser title, loading screen, About dialog and branding manifest. About identifies the Raspberry Pi workbook and links to the Pi repository. IntegratedSA LLC attribution and the truck artwork are retained. Internal service identifiers, workbook sheet names and production records retain their existing identities. The Windows launcher documentation explains its background SSH tunnel and browser behavior.
