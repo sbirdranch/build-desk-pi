@@ -1,5 +1,13 @@
 # Build Desk 0.2.0 implementation report
 
+## HTTP browser save recovery — October 20, 2026
+
+Reproduced Save preparation hanging in the actual browser against a disposable workbook on the Pi's HTTP origin. The browser threw `crypto.randomUUID is not a function` before sending the save request. Request setup ran after setting busy but before entering try/finally, leaving the form permanently disabled. Earlier HTTP acceptance checks used API clients, which did not exercise that browser-only request-ID path.
+
+Replaced browser UUID calls with an HTTP-compatible shared ID helper using `crypto.getRandomValues`, retaining random version-4 IDs. Printing saves and new purchasing items use the same helper. Payload serialization and request-ID setup now run inside try/finally so an early failure displays an error and clears busy. Preparation saves display an explicit Saving state. New tests cover a crypto object with no randomUUID and an unavailable random source. Reference: [browser getRandomValues support on HTTP](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues).
+
+All 56 tests passed on Windows and the Pi, including the real-workbook clone round trip. TypeScript and the Pi production build passed. Restarted using `tools/start-app.mjs --restart` and returned to the enabled user service. Actual HTTP browser testing against a disposable workbook saved an unconfirmed draft, rejected invalid plate runs with an actionable error and re-enabled controls, then saved a confirmed preparation and opened the Start tracked print dialog. Closed the dialog without recording a print. The two successful saves produced exactly two audit entries and two backups; all 13 historical jobs and part quantities were unchanged. Stopped the disposable server. The production workbook matched its pre-change checksum, and the production user service remained active.
+
 ## Direct home-network HTTP — October 20, 2026
 
 Replaced required SSH-tunnel access with direct HTTP at `http://192.168.0.119:4174/`. The deployed service binds IPv4 interfaces and explicitly permits editors from the configured home subnet using the configured IP/port Host. The Node server derives separate host-local and editor headers from the real socket, replacing any client-supplied values. LAN editors receive the existing edit token; same-origin, token, archived-build, workbook and audit safeguards remain in force. Process IDs remain host-local. Four new tests cover default isolation, configured subnet/Host matching, forged headers, invalid configuration and origin/token rejection. The Windows launcher now opens the direct URL without SSH.

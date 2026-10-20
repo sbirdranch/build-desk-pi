@@ -8,6 +8,8 @@ Open **http://192.168.0.119:4174/** in a browser and bookmark it. No SSH tunnel,
 
 The Desktop **Open-Pi-Build-Desk.cmd** launcher is an optional convenience: it checks that the Pi app responds, then opens the direct address in your default browser. It no longer starts SSH. The Desktop copy forwards to the supporting launcher in this repository, so keep the project folder in place. Closing the browser leaves the Pi service running. The service starts automatically on boot.
 
+Saves work over the plain HTTP address. Save preparation shows **Saving…**, then a completion message; Start print becomes available once the saved review meets its checks. After an application update, reload the browser to load the new client code. A review that failed before reaching the server must be reviewed and saved again; unsaved form values are not persisted by reloading.
+
 **Raspberry Pi 3 continuation:** this private repository is `sbirdranch/build-desk-pi`, derived from `sbirdranch/build-desk` with Git history preserved. The Pi keeps the workbook, backups and preview caches; source models remain on the existing NAS share, mounted read-only. The original Windows service is stopped and its files are retained. See [deployment, access configuration and rollback](docs/raspberry-pi.md). An actual reboot test is still pending. The Windows instructions below describe the upstream installation.
 
 Local browser workspace for managing model builds, starting with Kitten 745 print production. Attributed to **IntegratedSA LLC**. The desktop application uses a section → 3MF → plate → part tree, saved plate preparation, print history, explicit acceptance of completed parts, reference photos and rotatable model previews.
