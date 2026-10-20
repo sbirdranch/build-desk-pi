@@ -2,7 +2,7 @@ import {readFile, unlink} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const url='http://127.0.0.1:4174/';
+const url=`http://127.0.0.1:${Number(process.env.PORT||4174)}/`;
 const action=process.argv[2];
 if(!['status','stop'].includes(action))throw Error('Use status or stop.');
 let health;

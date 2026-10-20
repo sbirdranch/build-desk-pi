@@ -1,5 +1,7 @@
 # Build Desk
 
+**Raspberry Pi 3 continuation:** this repository is `sbirdranch/build-desk-pi`, derived from the Windows `sbirdranch/build-desk` project with its Git history preserved. Start with [Pi deployment and Windows browser access](docs/raspberry-pi.md). The Pi runs the Excel-backed server; Windows accesses editing through an authenticated SSH tunnel. Hardware deployment and performance acceptance remain pending. The Windows instructions below describe the upstream installation. This fork defaults to loopback listening; direct LAN viewing requires `BUILDDESK_HOST=0.0.0.0`.
+
 Local browser workspace for managing model builds, starting with Kitten 745 print production. Attributed to **IntegratedSA LLC**. The desktop application uses a section → 3MF → plate → part tree, saved plate preparation, print history, explicit acceptance of completed parts, reference photos and rotatable model previews.
 
 ## Server controls and local files

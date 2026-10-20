@@ -1,5 +1,9 @@
 # Build Desk architecture
 
+## Raspberry Pi 3 continuation
+
+The Pi fork retains the Excel data-store boundary and production workflow. The Linux server defaults to loopback binding (`BUILDDESK_HOST` overrides it); a Windows browser reaches it through authenticated SSH port forwarding. The original socket-derived edit decision, rotating token and same-origin checks remain in force. No LAN edit bypass or forwarded-header trust was added. A separate private registry supplies Linux paths. A systemd service runs the server in the foreground under a dedicated account. Next build parallelism is limited for constrained memory. See [deployment and pending hardware acceptance](docs/raspberry-pi.md). The following sections document the upstream Windows design and shared behavior.
+
 Build Desk is a local browser application owned by IntegratedSA LLC. It runs on the Windows host using Node.js, TypeScript, Next.js and React. Local work needs no database server or paid runtime service. Optional Purchasing queue ingestion uses a separately authorized direct Google Drive connection; it cannot inherit ChatGPT connector credentials.
 
 ## Build isolation and extensibility

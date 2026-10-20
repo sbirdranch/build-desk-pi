@@ -1,0 +1,27 @@
+[Unit]
+Description=Build Desk production tracker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=builddesk
+Group=builddesk
+WorkingDirectory=/opt/build-desk/web
+Environment=NODE_ENV=production
+Environment=PORT=4174
+Environment=BUILDDESK_HOST=127.0.0.1
+Environment=BUILDDESK_REGISTRY=/opt/build-desk/local-data/builds.pi.json
+Environment=NODE_OPTIONS=--max-old-space-size=512
+ExecStart=/usr/bin/node /opt/build-desk/web/server.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/build-desk/local-data /opt/build-desk/assets/generated /opt/build-desk/web/.next
+
+[Install]
+WantedBy=multi-user.target

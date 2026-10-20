@@ -3,7 +3,7 @@ import {mkdir,open,readFile,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const url='http://127.0.0.1:4174/';
+const url=`http://127.0.0.1:${Number(process.env.PORT||4174)}/`;
 async function ready(){try{const r=await fetch(url+'api/builds',{signal:AbortSignal.timeout(1000)});return r.ok&&Array.isArray(await r.json())}catch{return false}}
 if(process.argv.includes('--restart')&&await ready()){
  const saved=Number(await readFile(path.join(root,'local-data/app.pid'),'utf8'));
@@ -21,4 +21,10 @@ if(!await ready()){
  if(!await ready())throw Error('Build Desk did not start. Check local-data/app.err.log. Run npm --prefix web run build first.');
 }
 console.log('Build Desk is ready: '+url);
-if(process.argv.includes('--open'))spawn('cmd.exe',['/c','start','',url],{windowsHide:true,stdio:'ignore'}).unref();
+if(process.argv.includes('--open')){
+ const command=process.platform==='win32'?'cmd.exe':process.platform==='darwin'?'open':'xdg-open';
+ const args=process.platform==='win32'?['/c','start','',url]:[url];
+ const child=spawn(command,args,{windowsHide:true,stdio:'ignore'});
+ child.on('error',()=>console.log('Open this address in your browser: '+url));
+ child.unref();
+}

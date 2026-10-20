@@ -3,11 +3,15 @@ import {startupOrderQueues} from '../tools/order-queue.mjs';
 import http from 'node:http';
 import {randomBytes} from 'node:crypto';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+// Resolve Next and local data from this server, regardless of the launch folder.
+process.chdir(path.dirname(fileURLToPath(import.meta.url)));
 import {startPrinterMonitors} from '../tools/printer-monitor.mjs';
 const dev=process.argv.includes('--dev');
 const port=Number(process.env.PORT||4174);
+const host=process.env.BUILDDESK_HOST||'127.0.0.1';
 process.env.BUILDDESK_EDIT_TOKEN=randomBytes(32).toString('hex');
-const app=next({dev,hostname:'0.0.0.0',port});
+const app=next({dev,hostname:host,port});
 await app.prepare();
 const projectRoot=path.resolve(process.cwd(),'..');
 await startPrinterMonitors(projectRoot,process.env.BUILDDESK_REGISTRY||path.join(projectRoot,'config/builds.json'));
@@ -19,4 +23,4 @@ http.createServer((req,res)=>{
   const address=req.socket.remoteAddress||'';
   req.headers['x-builddesk-local']=['127.0.0.1','::1','::ffff:127.0.0.1'].includes(address)?'1':'0';
   handler(req,res);
-}).listen(port,'0.0.0.0',()=>console.log(`Build Desk: http://127.0.0.1:${port} (home-network clients are read-only)`));
+}).listen(port,host,()=>console.log(`Build Desk: http://${host}:${port} (use SSH forwarding for Windows editing)`));

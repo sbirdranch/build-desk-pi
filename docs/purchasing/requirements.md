@@ -125,3 +125,16 @@ Required scenarios: new purchase, existing purchase update, repeat event, forwar
 ## Implementation decisions still to resolve, not new scope questions
 
 The application session must inspect and document exact legacy status mappings, existing formula behavior, safe added-tab schema, initial inventory/receipt baselines and mixed-supplier summary handling. Use the defaults above unless actual data exposes a material ambiguity; surface exceptions instead of silently fabricating values. OAuth and queue writer feasibility remain technical readiness gates. Report limitations plainly.
+
+
+## Purchasing form simplification — 2026-10-16
+
+User-approved interface update: Vendor is the only supplier identity shown or edited. Hide Supplier, Seller, Currency, Unit price, Line subtotal, Shipping and Tax / duties from order edit, review and detail views. Retain Total; assume USD when currency is unknown, preserving an explicit existing currency. Preserve stored legacy detail fields. Remove supplier selection and supplier-only review warnings from the purchasing interface. Provide Remove item for accidentally added unsaved rows when another row remains; existing saved purchases retain their history and are not deleted through this control.
+
+Review and Modify must provide an explicit Cancel action that closes without saving or dismissing queue events. Keep the dialog close control visible during scrolling; previews also provide Cancel.
+
+Single-item order events must populate the proposed Total from facts.order_total, defaulting unknown currency to USD. Preserve explicit currencies and surface conflicting stored totals. Never copy a whole multi-item order total onto each item. Suppress currency/extraction boilerplate from review evidence.
+
+Order current/proposed reviews use one combined item table showing description/variant, linked part, ordered/received/outstanding quantities, status and total. Place Dismiss at the far right of review actions, visually separated from Cancel/Modify/OK, and require an explicit Are you sure confirmation before submitting dismissal. Cancelling confirmation leaves review and pending updates unchanged.
+
+Components per pack stays editable; editing it selects Pack, while choosing Component resets conversion to one. Purchasing saves must not read printing model files or depend on NAS availability; return the committed snapshot directly. Show Saving progress and save failures next to Confirm and save.

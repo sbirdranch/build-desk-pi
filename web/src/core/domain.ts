@@ -77,8 +77,8 @@ export function applyCommand(original:Snapshot,command:Command,config:BuildConfi
   const job=s.jobs.find(j=>j.id===('jobId'in command?command.jobId:''));requireThat(job,'Job not found.');target=job.id;
   if(command.type==='await-inspection'){requireThat(job.status==='Printing','Only a printing job can move to inspection.');job.status='Awaiting inspection';summary='Print reported finished; no parts accepted yet';}
   else if(command.type==='save-results'||command.type==='finish'){
-   requireThat(job.status==='Printing'||job.status==='Awaiting inspection','This job is already closed.');validateResults(job,command.results,command.type==='finish');job.draft=command.results;
-   if(command.type==='finish'){for(const i of job.items){const r=command.results.find(r=>r.mappingId===i.mappingId)!;i.accepted=r.accepted;i.rejected=r.rejected;}job.status='Completed';job.finishedAt=now;summary=`Completed print: ${job.items.reduce((n,i)=>n+i.accepted!,0)} accepted`;}
+   requireThat(job.status==='Printing'||job.status==='Awaiting inspection','This job is already closed.');const results=command.type==='finish'&&Array.isArray(command.results)?command.results.map(r=>({...r,accepted:r.accepted===null?0:r.accepted,rejected:r.rejected===null?0:r.rejected})):command.results;validateResults(job,results,command.type==='finish');job.draft=results;
+   if(command.type==='finish'){for(const i of job.items){const r=results.find(r=>r.mappingId===i.mappingId)!;i.accepted=r.accepted;i.rejected=r.rejected;}job.status='Completed';job.finishedAt=now;summary=`Completed print: ${job.items.reduce((n,i)=>n+i.accepted!,0)} accepted`;}
    else summary='Saved inspection draft; completion counts unchanged';
   }else if(command.type==='cancel'){requireThat(job.status==='Printing'||job.status==='Awaiting inspection','This job is already closed.');requireThat(!job.draft?.some(r=>(r.accepted??0)>0),'Accepted parts are drafted. Finish the job or clear the draft before cancelling.');job.status='Cancelled';job.finishedAt=now;summary='Cancelled print; no completion credited';}
   else throw new DomainError('Unknown action.');

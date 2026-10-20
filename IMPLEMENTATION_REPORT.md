@@ -1,5 +1,11 @@
 # Build Desk 0.2.0 implementation report
 
+## Raspberry Pi fork — October 20, 2026
+
+Windows validation: all 50 tests passed, including the real-workbook clone round trip; strict TypeScript and the production build passed. The fork started and restarted with `tools/start-app.mjs --restart` on isolated port 4176. Its page, health, registry and copied tracker endpoints returned 200, and a foreign-origin mutation returned 403. The copied tracker had 101 parts and 13 historical jobs. The disposable service was stopped afterward. All 636 checked original runtime files retained their hashes; the original Windows service and uncommitted source changes were preserved. Pi SSH is reachable at 192.168.0.119 as user preston, but key authorization and device inspection remain pending.
+
+Created the private `sbirdranch/build-desk-pi` continuation from the existing Git history and a copy of the current Windows source changes. The original checkout and production data remain independent. Added a Linux registry example, dedicated-account systemd service, loopback binding by default, port-aware launchers and Linux browser-opening support. Next builds use one worker with Webpack memory optimizations. Windows editing uses SSH port forwarding with the existing token/origin/socket security boundary. The optional real-workbook test accepts `BUILDDESK_TEST_WORKBOOK` and skips when no local reference workbook exists; all synthetic workflow tests remain available on a fresh clone. Deployment steps, data cutover, Bambu/renderer limits and rollback are in `docs/raspberry-pi.md`. Pi hardware deployment, capacity, mount permissions and reboot acceptance remain pending; Windows checks do not establish ARM64 readiness.
+
 Delivered October 15, 2026. Application attribution: IntegratedSA LLC.
 
 ## Running application and records
