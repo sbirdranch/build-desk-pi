@@ -1,0 +1,23 @@
+[Unit]
+Description=Build Desk production tracker (user installation)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/build-desk/web
+Environment=NODE_ENV=production
+Environment=PORT=4174
+Environment=BUILDDESK_HOST=127.0.0.1
+Environment=BUILDDESK_REGISTRY=%h/build-desk/local-data/builds.pi.json
+Environment=NODE_OPTIONS=--max-old-space-size=512
+Environment=PATH=%h/.local/node/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/.local/node/bin/node %h/build-desk/web/server.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+StandardOutput=append:%h/build-desk/local-data/service.log
+StandardError=append:%h/build-desk/local-data/service.err.log
+
+[Install]
+WantedBy=default.target

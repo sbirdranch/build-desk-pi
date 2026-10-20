@@ -1,0 +1,11 @@
+[Unit]
+Description=Build Desk existing NAS share
+Wants=network-online.target
+After=network-online.target
+
+[Mount]
+What=//IBFNAS.local/Preston
+Where=/mnt/builddesk
+Type=cifs
+Options=credentials=/home/preston/build-desk/local-data/nas.credentials,uid=1000,gid=1000,ro,nosuid,nodev,noexec,vers=3.1.1,iocharset=utf8,dir_mode=0550,file_mode=0440
+TimeoutSec=30

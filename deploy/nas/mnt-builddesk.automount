@@ -1,0 +1,9 @@
+[Unit]
+Description=Mount Build Desk NAS files on demand
+
+[Automount]
+Where=/mnt/builddesk
+TimeoutIdleSec=600
+
+[Install]
+WantedBy=multi-user.target
