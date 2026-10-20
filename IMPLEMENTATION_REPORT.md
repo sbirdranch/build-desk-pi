@@ -1,5 +1,11 @@
 # Build Desk 0.2.0 implementation report
 
+## Pi edition branding — October 20, 2026
+
+The application is presented as **Build Desk Pi** in its header (with a green Pi badge), browser title, loading screen, About dialog and branding manifest. About identifies the Raspberry Pi workbook and links to the Pi repository. IntegratedSA LLC attribution and the truck artwork are retained. Internal service identifiers, workbook sheet names and production records retain their existing identities. The Windows launcher documentation explains its background SSH tunnel and browser behavior.
+
+Local TypeScript and the on-device Pi production build passed. Deployment used `tools/start-app.mjs --restart` before returning control to the user service. Browser verification confirmed the Pi badge, title and About details; API verification confirmed editing remained enabled with 101 parts and 13 historical jobs. The workbook checksum was unchanged from the pre-deployment record. A branding screenshot is retained only in ignored local-data.
+
 ## Raspberry Pi fork — October 20, 2026
 
 Windows validation: all 50 tests passed, including the real-workbook clone round trip; strict TypeScript and the production build passed. The fork started and restarted with `tools/start-app.mjs --restart` on isolated port 4176. Its page, health, registry and copied tracker endpoints returned 200, and a foreign-origin mutation returned 403. The copied tracker had 101 parts and 13 historical jobs. The disposable service was stopped afterward. All 636 checked original runtime files retained their hashes and the uncommitted source changes were preserved. The original Windows service was subsequently stopped for production cutover as described below.

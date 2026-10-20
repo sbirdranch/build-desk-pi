@@ -21,7 +21,7 @@ if(!await ready()){
  if(failure)throw failure;
  if(!await ready())throw Error('The Pi app did not respond. Check local-data/pi-user-tunnel.err.log and the Pi service.');
 }
-console.log('Build Desk on the Pi: '+url);
+console.log('Build Desk Pi: '+url);
 if(process.argv.includes('--open')){
  const command=process.platform==='win32'?'cmd.exe':process.platform==='darwin'?'open':'xdg-open';
  const args=process.platform==='win32'?['/c','start','',url]:[url];

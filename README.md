@@ -1,4 +1,12 @@
-# Build Desk
+# Build Desk Pi
+
+The header, browser tab, loading screen and About dialog identify this Raspberry Pi edition as **Build Desk Pi**. IntegratedSA LLC attribution and the existing truck artwork are retained.
+
+## Open from Windows
+
+Double-click **Open-Pi-Build-Desk.cmd** in this repository folder. You can create a Windows desktop shortcut to that file; keep the launcher in its folder so it can find its supporting script and private connection settings.
+
+The launcher opens or reuses a secure SSH tunnel to the Pi at `192.168.0.119`, then opens your default browser at **http://127.0.0.1:4176/**. Although the browser address is local, requests travel through the tunnel to the application and workbook on the Pi. It does not start a Windows copy of the server or transfer the workbook. The Pi service starts automatically on boot. Closing the browser leaves the Pi service and background tunnel running. If the tunnel ends after a network interruption or Windows restart, run the launcher again. The Pi and Windows computer must be on the same network for this configured connection.
 
 **Raspberry Pi 3 continuation:** this repository is `sbirdranch/build-desk-pi`, derived from the Windows `sbirdranch/build-desk` project with its Git history preserved. The production tracker now runs on the Pi at `192.168.0.119`. On Windows, double-click **Open-Pi-Build-Desk.cmd** or run `node tools/open-pi.mjs --open`; the authenticated SSH tunnel opens **http://127.0.0.1:4176/** with editing enabled. The Pi keeps the Excel workbook, backups and preview caches; source models remain on the existing NAS share, mounted read-only. The original Windows service is stopped and its files are retained. See [Pi deployment, verification and rollback](docs/raspberry-pi.md). An actual reboot test is still pending. The Windows instructions below describe the upstream installation. This fork defaults to loopback listening; direct LAN viewing requires `BUILDDESK_HOST=0.0.0.0`.
 
