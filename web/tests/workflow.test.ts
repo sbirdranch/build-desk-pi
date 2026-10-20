@@ -104,6 +104,24 @@ test('3MF membership groups split components and imports new plates except ignor
  assert.equal(imported.plates.length,3);assert.deepEqual(imported.untracked,[3]);assert.equal(imported.plates[0].assignments.length,2);assert.deepEqual(imported.plates[0].assignments[0],{partId:'part-one',copies:null,split:true});assert.equal(imported.plates[0].assignments[1].copies,0);assert.deepEqual(imported.plates[0].unmapped,['Unknown.stl']);
 });
 
+test('confirmed duplicate-name matches are scoped to build, file, plate and exact source revision',async()=>{
+ const f=await fixture();const s=await f.store.load();
+ s.parts[0].source='TipperBox 745\\Cylinder Mounts.stl';s.parts[1].source='Rear Chassis 745\\Cylinder Mounts.stl';
+ const zip=new JSZip();
+ zip.file('Metadata/model_settings.config','<config><object id="1"><metadata key="name" value="Cylinder Mounts.stl"/><part><metadata key="source_file" value="Cylinder Mounts.stl"/></part></object><plate><metadata key="plater_id" value="1"/><model_instance><metadata key="object_id" value="1"/></model_instance></plate><plate><metadata key="plater_id" value="2"/><model_instance><metadata key="object_id" value="1"/></model_instance></plate></config>');
+ zip.file('3D/3dmodel.model','<model><build><item objectid="1"/></build></model>');
+ const bytes=await zip.generateAsync({type:'nodebuffer'});const hash=createHash('sha256').update(bytes).digest('hex');
+ const match={buildId:s.build.id,fileId:'file-one',sourceHash:hash,plateNumber:1,objectName:'Cylinder Mounts.stl',partSource:s.parts[0].source};
+ const result=await inspectMembership(bytes,s,'file-one',[match]);
+ assert.deepEqual(result.plates[0].assignments,[{partId:'part-one',copies:1,split:false}]);assert.deepEqual(result.plates[0].unmapped,[]);
+ assert.deepEqual(result.plates[1].unmapped,['Cylinder Mounts.stl']);
+ for(const wrong of [{...match,buildId:'another-build'},{...match,fileId:'file-two'},{...match,sourceHash:'changed'},{...match,objectName:'Other.stl'}]){
+  assert.deepEqual((await inspectMembership(bytes,s,'file-one',[wrong])).plates[0].unmapped,['Cylinder Mounts.stl']);
+ }
+ await assert.rejects(()=>inspectMembership(bytes,s,'file-one',[{...match,partSource:'Missing/Cylinder Mounts.stl'}]),/no longer identifies/);
+ await assert.rejects(()=>inspectMembership(bytes,s,'file-one',[match,match]),/Conflicting/);
+});
+
 test('unchanged membership preserves preparation; unmatched objects remain visible for review',async()=>{
  const f=await fixture();let s=await f.store.load();
  const command={type:'reconcile-file' as const,fileId:'file-one',sourceHash:'source-a',plates:[{number:1,name:'Front plate',assignments:[{partId:'part-two',copies:1},{partId:'part-one',copies:2}],unmapped:[] as string[]}]};

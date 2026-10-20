@@ -1,5 +1,13 @@
 # Build Desk 0.2.0 implementation report
 
+## Confirmed TipperBox object association — October 20, 2026
+
+The saved TipperBox 745 P01 contains `Cylinder Mounts.stl`, a basename shared by separate Rear Chassis and TipperBox tracked sources. Its 3MF metadata contains no folder information. Added a versioned confirmed-match registry and importer support scoped to build, file, exact source hash, plate and object name. The user confirmed the TipperBox source (`K745-P0083`); the matching Rear Chassis part remains distinct. Changed source bytes do not reuse the confirmation; conflicting entries and missing/ambiguous target paths reject import rather than guessing.
+
+New regression coverage exercises duplicate names, exact association, scope isolation, stale source hashes and invalid/conflicting targets. Windows tests passed (56 passed, one optional real-workbook test skipped), and TypeScript passed. All 57 tests passed on the Pi, including its real-workbook clone. A separate production-tracker clone refresh verified that only P01 membership changed and that jobs, quantities, purchasing and other plates remained unchanged.
+
+The Pi production build passed. Applied the confirmed association through the locked Excel adapter, producing a backup and audit record; the same preservation checks passed against production, including the active Tailgate print. Browser verification showed P01 as Not started instead of the question-mark state, with Hinges and Cylinder Mounts in its part list and no matching warning. P01 preparation was invalidated for re-review of the corrected membership. Restarted with `tools/start-app.mjs --restart` and returned to the active user service. No print was started or completed by this correction.
+
 ## HTTP browser save recovery — October 20, 2026
 
 Reproduced Save preparation hanging in the actual browser against a disposable workbook on the Pi's HTTP origin. The browser threw `crypto.randomUUID is not a function` before sending the save request. Request setup ran after setting busy but before entering try/finally, leaving the form permanently disabled. Earlier HTTP acceptance checks used API clients, which did not exercise that browser-only request-ID path.

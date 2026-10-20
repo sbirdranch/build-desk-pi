@@ -14,6 +14,8 @@ The UI consumes normalized parts, model files, plates, jobs, preparations and au
 
 Asset catalogs map stable IDs to thumbnails, still images, display GLBs and reference originals. Each build has its own permitted asset root. The server rejects path traversal and symlinks outside it. Images and geometry load on demand; no full model library or unrelated build is preloaded. Reference photos retain original bytes and color profiles. All model/reference files remain outside Git.
 
+Confirmed duplicate-name associations are versioned in `config/object-matches.json`. Each entry identifies a build, file, exact 3MF SHA-256, plate number, object name and full tracked part source path. Refresh applies only an exact scoped match; changed source bytes require reconfirmation. Conflicting entries or a missing/ambiguous target fail the refresh. Section names alone never resolve ambiguity, and no browser matching editor is currently provided.
+
 ## Excel as the authoritative store
 
 The complete Google export is preserved as an immutable starting backup. The app's active workbook is local; the online sheet is no longer a synchronization target. Existing tabs and stable IDs remain. App saves add three auditable tabs: Build Desk Preparations, Build Desk Result Drafts, and Build Desk Change Log. Reconciliation adds Build Desk File Imports to record the production-membership source fingerprint separately from preview generation. Print Job History remains the result ledger; opening accepted quantities remain intact.

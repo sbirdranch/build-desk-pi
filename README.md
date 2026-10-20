@@ -93,6 +93,8 @@ Code, application branding, tracker identity mappings, dependency locks and docu
 
 ## Generate assets
 
+If a plate reports **Objects needing part matching**, an object could not be uniquely associated with a tracked part. The app currently has no matching editor. Confirm the intended full part source path, then record the association in `config/object-matches.json` and reload that file's print details. Matches are limited to the specified build, file revision hash, plate and object; a changed 3MF requires reconfirmation. Review and save preparation again after membership changes.
+
 Use Python 3.12 and Node.js 22 or newer. Install Python requirements in a virtual environment and run:
 
 ```powershell
