@@ -6,5 +6,13 @@
     "plateNumber": 1,
     "objectName": "Cylinder Mounts.stl",
     "partSource": "TipperBox 745\\Cylinder Mounts.stl"
+  },
+  {
+    "buildId": "kitten-745",
+    "fileId": "K745-3MF005",
+    "sourceHash": "776e4d6d595a9b5e33bd5135fcc15061875071176dc68a5ffd1910b57e925b0c",
+    "plateNumber": 6,
+    "objectName": "Cylinder Mounts.stl",
+    "partSource": "Rear Chassis 745\\Cylinder Mounts.stl"
   }
 ]

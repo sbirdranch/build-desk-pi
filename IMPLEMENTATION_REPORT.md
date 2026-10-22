@@ -1,5 +1,13 @@
 # Build Desk 0.2.0 implementation report
 
+## Rear Chassis P06 object association — October 22, 2026
+
+Added the corresponding confirmed association for `K745_RearChassis745_PETG_v02.3mf`, P06: `Cylinder Mounts.stl` maps to `Rear Chassis 745\\Cylinder Mounts.stl` (`K745-P0045`). The entry uses the verified current 3MF SHA-256 and does not alter the separate TipperBox association. This is a data/configuration correction using the existing importer; application source and compiled output are unchanged.
+
+A refresh against a fresh production-workbook copy verified that only P06 membership changed, its unmatched list became empty, and all jobs, part quantities, purchasing and other plates were identical before and after.
+
+Applied the same refresh through the locked Excel adapter to the Pi's authoritative workbook, creating its automatic backup and audit entry. The same preservation assertions passed against production. No preparation was confirmed and no print was recorded. Restarted with `tools/start-app.mjs --restart` and returned to the active user service.
+
 ## Confirmed TipperBox object association — October 20, 2026
 
 The saved TipperBox 745 P01 contains `Cylinder Mounts.stl`, a basename shared by separate Rear Chassis and TipperBox tracked sources. Its 3MF metadata contains no folder information. Added a versioned confirmed-match registry and importer support scoped to build, file, exact source hash, plate and object name. The user confirmed the TipperBox source (`K745-P0083`); the matching Rear Chassis part remains distinct. Changed source bytes do not reuse the confirmation; conflicting entries and missing/ambiguous target paths reject import rather than guessing.
