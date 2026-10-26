@@ -92,7 +92,7 @@ export default function Workbench(){
  if(selection.kind==='part'&&selectedPart){
   const p=selectedPart,mapped=snapshot.plates.filter(pl=>pl.assignments.some(a=>a.partId===p.id));
   return <><div className="page-heading"><div><h1>{p.name} <span className="part-heading-number">({p.id})</span></h1></div><Badge text={labels[stateOf(p)]} tone={stateOf(p)}/></div>
-   <div className="plate-top part-detail-top"><ModelPreview buildId={buildId} asset={partAsset(p.id)}/><div>
+   <div className="plate-top part-detail-top"><ModelPreview buildId={buildId} asset={partAsset(p.id)} interactiveOnly/><div>
     <dl><dt>Section</dt><dd>{p.section}</dd><dt>Accepted</dt><dd>{p.accepted}</dd><dt>Remaining</dt><dd>{p.required===null?'Confirm required quantity':Math.max(0,p.required-p.accepted)}</dd><dt>Source</dt><dd>{p.source}</dd></dl>
     <h3>Tracked print locations</h3><div className="tracked-locations">{mapped.map(pl=><button className="location-link" key={pl.id} onClick={()=>navigate({kind:'plate',id:pl.id})}>{snapshot.files.find(f=>f.id===pl.fileId)?.filename}<small>{plateLabel(pl)} →</small></button>)}</div>
     {partDraft&&<div className="part-quantities desktop"><label>Required quantity<input type="number" min="0" disabled={!editable||busy} value={partDraft.required??''} placeholder="Not confirmed" onChange={e=>{setPartDraft({...partDraft,required:integer(e.target.value)});setDirty(true)}}/></label><label>Installed quantity<input type="number" min="0" max={p.accepted} disabled={!editable||busy} value={partDraft.installed} onChange={e=>{setPartDraft({...partDraft,installed:Number(e.target.value)});setDirty(true)}}/></label></div>}
