@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "event_id": "k745-a76b81e126b8e5f76f87261d147b46238173b6c61e17b1b056d8fff324e638c2",
+  "build_id": "kitten-745",
+  "vendor": "aliexpress",
+  "order_number": "8215721892474099",
+  "created_at": "2026-10-25T20:00:07Z",
+  "event_at": null,
+  "source": {
+    "gmail_message_id": "1a173984dc04e192",
+    "gmail_thread_id": "1a173984dc04e192",
+    "message_date": "2026-10-25T15:05:22Z",
+    "subject": "Your 2 packages have delivery updates",
+    "forwarded": false,
+    "original_sender": null
+  },
+  "facts": {
+    "order_date": null,
+    "currency": null,
+    "order_total": null,
+    "items": [
+      {
+        "source_item_id": null,
+        "description": "3/4/5/6/7/8/10/11/12mm ri...",
+        "specification": "6mm",
+        "seller": null,
+        "ordered_quantity": 6,
+        "unit_basis": "component",
+        "pack_size": null,
+        "unit_price": null,
+        "line_total": null,
+        "shipping_amount": null,
+        "tax_amount": null,
+        "status": "shipped",
+        "status_quantity": 6,
+        "tracking": [
+          {
+            "carrier": "Not provided in source",
+            "tracking_number": "AP00849246837560"
+          }
+        ],
+        "suggested_part_id": null,
+        "evidence": "Two-package update maps order 8215721892474099 to the truncated rigid-coupler item, 6mm specification, quantity x6, tracking AP00849246837560, and global-transit status. The carrier is not identified."
+      }
+    ],
+    "note": "Package update: in global transit."
+  },
+  "supersedes_event_ids": []
+}

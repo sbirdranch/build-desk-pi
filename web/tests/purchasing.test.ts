@@ -5,7 +5,7 @@ import path from 'node:path';
 import {randomUUID,createHash} from 'node:crypto';
 import ExcelJS from 'exceljs';
 import {applyPurchase,recalculatePurchasing,itemStatus,orderStatus,orderKey,type Purchasing,type PurchaseItem} from '../src/core/purchasing';
-import {validateEvent,consolidate} from '../src/server/order-events';
+import {validateEvent,consolidate,sourceAlias} from '../src/server/order-events';
 import {ExcelStore} from '../src/server/excel-store';
 import type {BuildConfig} from '../src/core/types';
 // @ts-ignore shared Node runtime module
@@ -32,7 +32,58 @@ test('shared golden fixtures are accepted/rejected by the consumer',async()=>{co
 test('remote move failure retries without losing cached events, then archives acknowledgment',async()=>{const root=path.resolve('test-output',randomUUID()),e=event();let failed=true,moves=0;const provider=async()=>({list:async()=>[{id:'file-1',name:'event.json'}],download:async()=>JSON.stringify(e),move:async()=>{moves++;if(failed)throw Error('Offline');}});let cache=await checkQueue(root,'fixture',[],provider);assert.equal(cache.files.length,1);const dispositions=[{files:[{id:'file-1',destination:'Processed'}]}];cache=await checkQueue(root,'fixture',dispositions,provider);assert.equal(cache.files.length,1);assert.match(cache.error,/acknowledgment/);failed=false;cache=await checkQueue(root,'fixture',dispositions,provider);assert.equal(cache.files.length,0);assert.equal(cache.archived[0].id,'file-1');assert.equal(moves,2);});
 
 test('single-item email order total is proposed in USD and later price evidence is retained',()=>{const first=event();first.facts.items[0].status='ordered';first.facts.items[0].status_quantity=4;first.facts.items[0].tracking=[];const priced=event({source:{...first.source,gmail_message_id:'message-price',message_date:'2026-10-16T16:00:00Z'}});priced.facts=structuredClone(first.facts);priced.facts.order_total='76.36';const r=consolidate(data(),JSON.stringify(['aliexpress','00123']),[{fileId:'a',event:first},{fileId:'b',event:priced}]);assert.equal(r.items.length,1);assert.equal(r.items[0].total,'76.36');assert.equal(r.items[0].currency,'USD');assert.equal(r.items[0].unitPrice,null);});
-test('multi-item email total is never duplicated as each item total',()=>{const e=event();e.facts.order_total='100.00';e.facts.items.push({...e.facts.items[0],description:'Other motor',source_item_id:'line-2'});const r=consolidate(data(),JSON.stringify(['aliexpress','00123']),[{fileId:'a',event:e}]);assert.equal(r.items.length,2);assert.ok(r.items.every(i=>i.total===null));});
+test('multi-item email total is never duplicated as each item total',()=>{const e=event();e.facts.order_total='100.00';e.facts.items.push({...e.facts.items[0],description:'Other motor',source_item_id:'line-2'});const r=consolidate(data(),JSON.stringify(['aliexpress','00123']),[{fileId:'a',event:e}],{[sourceAlias(e.facts.items[1])]:'new'});assert.equal(r.items.length,2);assert.ok(r.items.every(i=>i.total===null));});
 test('explicit foreign currency and previously saved total are preserved for conflict review',()=>{const p=add(data(),[item({total:'10.00',currency:'CAD'})]);const e=event();e.facts.currency='CAD';e.facts.order_total='11.00';const r=consolidate(p,JSON.stringify(['aliexpress','00123']),[{fileId:'a',event:e}]);assert.equal(r.items[0].total,'10.00');assert.equal(r.items[0].currency,'CAD');assert.ok(r.conflicts.some(c=>c.includes('Conflicting total')));});
 
 test('manual Amazon order with total and product link saves through workbook commit',async()=>{const f=await fixture(),before=await f.store.load();const input=item({vendor:'amazon',orderId:'111-1234567-7654321',total:'24.99',currency:'USD',link:'https://www.amazon.com/dp/EXAMPLE',supplier:'Amazon'});const r=await f.store.commit(before.revision,randomUUID(),{type:'purchasing',operation:{kind:'order',items:[input]}},{});const saved=r.snapshot.purchasing!.items.find(i=>i.id===input.id)!;assert.equal(saved.vendor,'amazon');assert.equal(saved.total,'24.99');assert.equal(saved.link,input.link);});
+
+for(const name of ['motor','coupler','gearmotor'])test('historical '+name+' update requires a match without creating a duplicate',async()=>{
+ const e=validateEvent(await readFile(path.resolve('tests/fixtures/order-process',name+'.json'),'utf8'),'kitten-745');
+ const p=add(data(),[item({orderId:e.order_number,description:'Local '+name,quantity:name==='coupler'?6:1,total:'31.48',currency:'USD',notes:'Keep notes',link:'https://example.com/original'})]);
+ const original=structuredClone(p),key=orderKey(p.items[0]),events=[{fileId:name,event:e}];
+ const pending=consolidate(p,key,events);assert.equal(pending.items.length,1);assert.equal(pending.unmatched.length,1);assert.equal(pending.items[0].shipments.length,0);
+ const matched=consolidate(p,key,events,{[sourceAlias(e.facts.items[0])]:p.items[0].id});
+ assert.equal(matched.unmatched.length,0);assert.equal(matched.items.length,1);const i=matched.items[0];
+ for(const field of ['id','row','partId','description','total','currency','notes','link','quantity','received','receivedDate'] as const)assert.deepEqual(i[field],p.items[0][field]);
+ assert.ok(i.sourceAliases?.includes(sourceAlias(e.facts.items[0])));assert.deepEqual(p,original);
+ if(name==='gearmotor'){assert.equal(i.shipments.length,0);assert.ok(matched.conflicts.some(c=>c.includes('quantity')));}else assert.equal(i.shipments.length,1);
+ const remembered=consolidate({...p,items:matched.items},key,events);assert.equal(remembered.unmatched.length,0);assert.equal(remembered.items.length,1);assert.equal(remembered.items[0].shipments.length,i.shipments.length);
+});
+
+test('ambiguous variants require explicit match or new item; matches cannot cross orders',()=>{
+ const p=add(data(),[item(),item({id:'item-0002',description:'Motor B'})]),e=event();e.facts.items[0].description='Different listing';
+ const events=[{fileId:'f',event:e}],key=orderKey(p.items[0]),alias=sourceAlias(e.facts.items[0]);
+ assert.equal(consolidate(p,key,events).items.length,2);assert.equal(consolidate(p,key,events).unmatched.length,1);
+ const added=consolidate(p,key,events,{[alias]:'new'});assert.equal(added.items.length,3);assert.equal(added.unmatched.length,0);
+ assert.throws(()=>consolidate(p,key,events,{[alias]:'other-order-item'}),/existing item in this order/);
+});
+
+test('confirmed aliases and preserved values survive workbook approval, reload and ordinary edits',async()=>{
+ const f=await fixture();let snapshot=await f.store.load();snapshot=(await f.store.commit(snapshot.revision,randomUUID(),{type:'purchasing',operation:{kind:'order',items:[item({total:'31.48',currency:'USD'})]}},{})).snapshot;
+ const e=event();e.facts.items[0].description='Different vendor title';const p=snapshot.purchasing!,alias=sourceAlias(e.facts.items[0]);
+ const result=consolidate(p,orderKey(p.items[0]),[{fileId:'f',event:e}],{[alias]:p.items[0].id});
+ snapshot=(await f.store.commit(snapshot.revision,randomUUID(),{type:'purchase-review',items:result.items,dismiss:false,eventIds:[e.event_id],sourceIds:[e.source.gmail_message_id],files:[]},{})).snapshot;
+ let saved=(await f.store.load()).purchasing!;assert.equal(saved.items[0].total,'31.48');assert.deepEqual(saved.items[0].sourceAliases,[alias]);
+ snapshot=(await f.store.commit(snapshot.revision,randomUUID(),{type:'purchasing',operation:{kind:'order',items:[{...saved.items[0],notes:'Edited note'}]}},{})).snapshot;
+ saved=snapshot.purchasing!;assert.deepEqual(saved.items[0].sourceAliases,[alias]);assert.equal(consolidate(saved,orderKey(saved.items[0]),[{fileId:'again',event:e}]).unmatched.length,0);
+});
+
+test('new-order title changes across messages require identity choice and can match a proposed row',()=>{
+ const first=event();first.facts.items[0].status='ordered';const later=event({source:{...first.source,gmail_message_id:'later',message_date:'2026-10-17T15:00:00Z'}});later.facts=structuredClone(first.facts);later.facts.items[0].description='Updated listing title';
+ const key=JSON.stringify(['aliexpress','00123']),events=[{fileId:'1',event:first},{fileId:'2',event:later}];const r=consolidate(data(),key,events);assert.equal(r.items.length,1);assert.equal(r.unmatched.length,1);
+ const resolved=consolidate(data(),key,events,{[sourceAlias(later.facts.items[0])]:r.items[0].id});assert.equal(resolved.items.length,1);assert.equal(resolved.unmatched.length,0);
+});
+
+test('new lead-screw confirmation remains a single purchase when reviewed again',()=>{
+ const e=event({order_number:'8216126315974099',source:{gmail_message_id:'1a179c6dd1b67939',gmail_thread_id:'1a179c6dd1b67939',message_date:'2026-10-26T19:53:57Z',subject:'Order confirmed',forwarded:false,original_sender:null}});e.facts.order_date=null;e.facts.order_total='5.20';Object.assign(e.facts.items[0],{description:'T8 Lead Screw With Nut OD 8mm...',specification:'250mm',ordered_quantity:1,status:'ordered',status_quantity:null,tracking:[],pack_size:null});
+ const key=JSON.stringify(['aliexpress',e.order_number]),events=[{fileId:'read-only-example',event:e}],r=consolidate(data(),key,events);assert.equal(r.items.length,1);assert.equal(r.items[0].total,'5.20');assert.equal(r.unmatched.length,0);
+ assert.equal(consolidate({...data(),items:r.items},key,events).items.length,1);
+});
+
+test('matching a shipment preserves receipts, cancellations and previous shipments',()=>{
+ const e=event();e.facts.items[0].description='Different title';e.facts.items[0].status_quantity=1;e.facts.items[0].tracking=[{carrier:'Carrier',tracking_number:'NEW'}];
+ const p=add(data(),[item({received:0,cancelled:1,shipments:[]})]);const received=applyPurchase(p,{kind:'receipt',date:'2026-10-16',reason:'Existing receipt',items:[{itemId:p.items[0].id,quantity:1}]},randomUUID(),at);
+ const result=consolidate(received,orderKey(received.items[0]),[{fileId:'f',event:e}],{[sourceAlias(e.facts.items[0])]:received.items[0].id});
+ assert.equal(result.items[0].received,1);assert.equal(result.items[0].receivedDate,'2026-10-16');assert.equal(result.items[0].cancelled,1);assert.equal(result.items[0].shipments.length,1);assert.equal(result.items.length,1);
+ assert.equal(applyPurchase(received,{kind:'order',items:result.items},randomUUID(),at).parts[0].onHand,received.parts[0].onHand);
+});
