@@ -15,9 +15,10 @@ let finish;const callback=new Promise((resolve,reject)=>{finish={resolve,reject}
 const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://127.0.0.1');if(u.pathname!=='/oauth/callback'||u.searchParams.get('state')!==state){res.writeHead(400).end('Invalid authorization callback.');return;}if(!u.searchParams.get('code')){res.writeHead(400).end('Authorization was not granted.');finish.reject(Error('Google authorization was not granted.'));return;}res.end('Authorization received. Return to the Build Desk setup terminal.');finish.resolve(u.searchParams.get('code'));});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const redirect='http://127.0.0.1:'+server.address().port+'/oauth/callback';
-// Reading content and moving metadata of files created by another app requires both scopes.
-// drive.file alone cannot promise access to future connector-created queue files.
-const scopes=['https://www.googleapis.com/auth/drive.readonly','https://www.googleapis.com/auth/drive.metadata'];
+// Queue files are created by a separate app. Live metadata-only authorization
+// returned appNotAuthorizedToFile on folder moves; explicit full Drive consent is required.
+// This grants broader account access than the configured queue operations use.
+const scopes=['https://www.googleapis.com/auth/drive'];
 console.log('Use a personal-use OAuth configuration suitable for durable authorization, not a seven-day Testing token. Stop if Google requires a paid service or trial.');
 console.log('Open this Google consent URL on the host PC:\n'+new URL('https://accounts.google.com/o/oauth2/v2/auth?'+new URLSearchParams({client_id:client.client_id,redirect_uri:redirect,response_type:'code',scope:scopes.join(' '),state,code_challenge:challenge,code_challenge_method:'S256',access_type:'offline',prompt:'consent'})).href);
 const timer=setTimeout(()=>finish.reject(Error('Authorization timed out. Run setup again.')),300000);
