@@ -92,7 +92,50 @@ try{
       LEFT JOIN print_jobs j ON j.build_id=i.build_id AND j.id=i.job_id WHERE p.build_id=? GROUP BY p.build_id,p.id`).all(buildId);
   const mismatches=totals.filter(r=>r.accepted!==acceptedByPart.get(r.id));
   if(mismatches.length)fail('Accepted-count mismatches: '+JSON.stringify(mismatches.slice(0,10)));
-  audit.verified={...found,acceptedTotalsMatched:totals.length,foreignKeyCheck:'ok',integrityCheck:'ok'};
+  // Compare business values field by field, not merely overall row counts.
+  let checkedRows=0;
+  const verify=(table,key,expected,actual)=>{
+    checkedRows++;
+    for(const [field,value] of Object.entries(expected)){
+      if(actual?.[field]!==value)fail('Semantic mismatch '+table+'/'+key+'/'+field+': expected '+JSON.stringify(value)+' got '+JSON.stringify(actual?.[field]));
+    }
+  };
+  for(const x of snapshot.parts){
+    const row=db.prepare('SELECT name,section,source,material,required_qty,opening_qty,installed_qty,notes FROM print_parts WHERE build_id=? AND id=?').get(buildId,x.id);
+    verify('print_parts',x.id,{name:x.name,section:x.section,source:x.source,material:x.material,required_qty:x.required,opening_qty:x.opening,installed_qty:x.installed,notes:x.notes},row);
+  }
+  for(const x of snapshot.files){
+    verify('model_files',x.id,{filename:x.filename,revision_label:x.revision,profile:x.profile,material:x.material,section:x.section,source_hash:x.sourceHash||null,imported_at:x.importedAt||null},
+      db.prepare('SELECT filename,revision_label,profile,material,section,source_hash,imported_at FROM model_files WHERE build_id=? AND id=?').get(buildId,x.id));
+  }
+  for(const plate of snapshot.plates){
+    const row=db.prepare('SELECT file_id,plate_number,name,section,unmapped_json FROM plates WHERE build_id=? AND id=?').get(buildId,plate.id);
+    verify('plates',plate.id,{file_id:plate.fileId,plate_number:plate.number,name:plate.name,section:plate.section,unmapped_json:JSON.stringify(plate.unmappedObjects||[])},row);
+    for(const a of plate.assignments)verify('plate_assignments',a.id,{plate_id:plate.id,part_id:a.partId,copies:a.copies,confirmed:Number(a.confirmed),note:a.note||''},
+      db.prepare('SELECT plate_id,part_id,copies,confirmed,note FROM plate_assignments WHERE build_id=? AND id=?').get(buildId,a.id));
+    if(plate.preparation){
+      const p=plate.preparation;
+      verify('plate_preparations',plate.id,{runs:p.runs,material:p.material,profile:p.profile,source_hash:p.sourceHash,notes:p.notes,saved_at:p.savedAt},
+        db.prepare('SELECT runs,material,profile,source_hash,notes,saved_at FROM plate_preparations WHERE build_id=? AND plate_id=?').get(buildId,plate.id));
+      for(const i of p.items)verify('preparation_items',plate.id+'/'+i.mappingId,{included:Number(i.included),copies:i.copies,planned_qty:i.planned},
+        db.prepare('SELECT included,copies,planned_qty FROM preparation_items WHERE build_id=? AND plate_id=? AND mapping_id=?').get(buildId,plate.id,i.mappingId));
+    }
+  }
+  for(const job of snapshot.jobs){
+    verify('print_jobs',job.id,{kind:job.kind,status:job.status,started_at:job.startedAt,finished_at:job.finishedAt||null},
+      db.prepare('SELECT kind,status,started_at,finished_at FROM print_jobs WHERE build_id=? AND id=?').get(buildId,job.id));
+    for(const [n,i] of job.items.entries())verify('print_job_items',job.id+'/'+n,
+      {part_id:i.partId,mapping_id:i.mappingId,file_id:i.fileId,file_revision:i.fileRevision,filename:i.filename,plate_number:i.plateNumber,plate_name:i.plateName,runs:i.runs,planned_qty:i.planned,accepted_qty:i.accepted,rejected_qty:i.rejected,profile:i.profile,material:i.material,notes:i.notes},
+      db.prepare('SELECT part_id,mapping_id,file_id,file_revision,filename,plate_number,plate_name,runs,planned_qty,accepted_qty,rejected_qty,profile,material,notes FROM print_job_items WHERE build_id=? AND job_id=? AND line_no=?').get(buildId,job.id,n));
+    for(const d of job.draft||[])verify('inspection_drafts',job.id+'/'+d.mappingId,{accepted_qty:d.accepted,rejected_qty:d.rejected},
+      db.prepare('SELECT accepted_qty,rejected_qty FROM inspection_drafts WHERE build_id=? AND job_id=? AND mapping_id=?').get(buildId,job.id,d.mappingId));
+  }
+  for(const x of p?.parts||[]){
+    const expectedNotes=(x.notes||'').replace(/[^\\x00-\\x7f]/g,'').slice(0,200);
+    verify('purchase_parts',x.id,{category:x.category,description:x.name,specification:x.specification,designer_requirement:x.requirement,required_qty:x.needed,on_hand_qty:x.onHand,ordered:0,product_url:x.link||'',ordered_date:x.orderedDate||null,notes:expectedNotes},
+      db.prepare('SELECT category,description,specification,designer_requirement,required_qty,on_hand_qty,ordered,product_url,ordered_date,notes FROM purchase_parts WHERE build_id=? AND id=?').get(buildId,x.id));
+  }
+  audit.verified={...found,acceptedTotalsMatched:totals.length,fieldComparedRecords:checkedRows,foreignKeyCheck:'ok',integrityCheck:'ok'};
   await writeFile(output+'.migration-report.json',JSON.stringify(audit,null,2),{flag:'wx'});
   // Legacy purchase orders/ledgers retained separately, never imported into new active schema.
   await writeFile(output+'.legacy-purchasing.json',JSON.stringify({sourceSha256:audit.sourceSha256,parts:p?.parts||[],items:p?.items||[],ledger:p?.ledger||[]},null,2),{flag:'wx'});
