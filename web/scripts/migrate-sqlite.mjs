@@ -67,12 +67,12 @@ try{
     insert('INSERT INTO inspection_drafts(build_id,job_id,mapping_id,accepted_qty,rejected_qty) VALUES(?,?,?,?,?)',
       snapshot.jobs.flatMap(j=>(j.draft||[]).map(d=>[buildId,j.id,d.mappingId,d.accepted,d.rejected])));
     const vendors=new Map();
-    const addVendor=(name)=>{const normalized=name.trim().replace(/\\s+/g,' ').toLocaleLowerCase('en-US');if(!normalized)return null;
+    const addVendor=(name)=>{const normalized=name.trim().replace(/\s+/g,' ').toLocaleLowerCase('en-US');if(!normalized)return null;
       if(!vendors.has(normalized)){const result=db.prepare('INSERT INTO vendors(display_name,normalized_name) VALUES(?,?)').run(name.trim(),normalized);vendors.set(normalized,Number(result.lastInsertRowid));}
       return vendors.get(normalized);};
     for(const x of p?.parts||[]){
       const rawNotes=x.notes||'';
-      const ascii=rawNotes.replace(/[^\\x00-\\x7f]/g,'').slice(0,200);
+      const ascii=rawNotes.replace(/[^\x00-\x7f]/g,'').slice(0,200);
       if(rawNotes!==ascii)audit.warnings.push({partId:x.id,issue:'Legacy notes shortened/converted; full value retained in archived source'});
       if(x.needed===null||x.onHand===null)audit.warnings.push({partId:x.id,issue:'Unknown required/on-hand value preserved as NULL'});
       if(x.orderedDate)audit.warnings.push({partId:x.id,issue:'Existing date preserved; Ordered flag requires review because historical order logs do not establish current user decision'});
@@ -131,7 +131,7 @@ try{
       db.prepare('SELECT accepted_qty,rejected_qty FROM inspection_drafts WHERE build_id=? AND job_id=? AND mapping_id=?').get(buildId,job.id,d.mappingId));
   }
   for(const x of p?.parts||[]){
-    const expectedNotes=(x.notes||'').replace(/[^\\x00-\\x7f]/g,'').slice(0,200);
+    const expectedNotes=(x.notes||'').replace(/[^\x00-\x7f]/g,'').slice(0,200);
     verify('purchase_parts',x.id,{category:x.category,description:x.name,specification:x.specification,designer_requirement:x.requirement,required_qty:x.needed,on_hand_qty:x.onHand,ordered:0,product_url:x.link||'',ordered_date:x.orderedDate||null,notes:expectedNotes},
       db.prepare('SELECT category,description,specification,designer_requirement,required_qty,on_hand_qty,ordered,product_url,ordered_date,notes FROM purchase_parts WHERE build_id=? AND id=?').get(buildId,x.id));
   }
