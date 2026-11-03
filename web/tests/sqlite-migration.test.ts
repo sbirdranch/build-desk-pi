@@ -6,6 +6,7 @@ import {join} from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {DatabaseSync} from 'node:sqlite';
 import ExcelJS from 'exceljs';
+import {readSQLiteSnapshot} from '../src/server/sqlite-read';
 
 test('migration copies a synthetic completed print and purchased part without touching source',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'builddesk-sqlite-'));
@@ -47,6 +48,11 @@ test('migration copies a synthetic completed print and purchased part without to
    assert.equal(db.prepare('SELECT accepted_qty FROM print_job_items').get()?.accepted_qty,2);
    assert.equal(db.prepare('SELECT on_hand_qty FROM purchase_parts').get()?.on_hand_qty,4);
    assert.equal(db.prepare('SELECT ordered FROM purchase_parts').get()?.ordered,0);
+   const restored=readSQLiteSnapshot(db,'kitten-test');
+   assert.equal(restored.parts[0].accepted,3);
+   assert.equal(restored.jobs[0].items[0].accepted,2);
+   assert.equal(restored.purchasing?.parts[0].onHand,4);
+   assert.equal(restored.plates[0].assignments[0].partId,'P1');
    assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(),[]);
   }finally{db.close()}
   const rerun=spawnSync(process.execPath,['--import','tsx','scripts/migrate-sqlite.mjs','--workbook',file,'--output',out,'--build-id','kitten-test'],{cwd:process.cwd(),encoding:'utf8',timeout:60000});
