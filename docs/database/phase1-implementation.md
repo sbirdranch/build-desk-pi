@@ -8,7 +8,9 @@ State: First implementation slice committed, **not yet accepted or deployed**.
 - `web/src/server/sqlite-schema.d.mts`: TypeScript declaration.
 - `web/scripts/migrate-sqlite.mjs`: **one-shot, write-new-file-only** Excel to SQLite migration from an exported/backup workbook.
 - `web/tests/sqlite-schema.test.ts`: schema/bootstrap, independent builds, shared vendor name, inventory isolation and job/inspection constraints.
-- `web/tests/sqlite-migration.test.ts`: synthetic workbook migration and accepted-count comparison, original input unchanged, existing destination refused.
+- `web/tests/sqlite-migration.test.ts`: synthetic workbook migration and accepted-count comparison, original input unchanged, existing destination refused, read-back through SQLite snapshot loader.
+- `web/src/server/sqlite-read.ts`: read-only SQLite-to-Snapshot adapter for migration comparisons; not yet the transactional runtime store.
+- `.github/workflows/refinement-v2-ci.yml`: Node 24 GitHub Actions validation for application tests, typecheck and production build.
 
 ## Operation and safety
 This is NOT an application cutover. Current runtime still routes through `excel-store.ts` and the production Pi workbook is authoritative. No live Pi registry, workbook or service was changed.
@@ -39,7 +41,7 @@ The importer currently migrates one build into a newly created SQLite file. The 
 - Ordered checkbox intentionally starts false for ambiguous legacy orders; date, vendor, on-hand, link, and designer fields preserved where possible; exceptions/warnings reported.
 
 ## Known limitations / acceptance blockers
-1. **Tests have been added but have not yet been run on the actual repository checkout or Pi.** A GitHub API connection can commit and inspect files, but cannot directly execute the Pi's Node runtime or read its ignored workbook.
+1. **GitHub Actions has executed the test suite, TypeScript check and production build successfully** on Node 24 (run 41680928760). Subsequent read-adapter commit has its own validation run; this does not substitute for Pi/actual-workbook testing. GitHub API access cannot directly run the Pi's Node runtime or read its ignored workbook.
 2. **Actual production workbook clone not yet verified.** Migration is not proven until row-level comparison passes against that specific file. Unknown/malformed legacy records may reveal additional compatibility work.
 3. **SQLite runtime adapter is not yet wired.** Current `createStore`, registry type restrictions and API routes are Excel-only; do not change registry to `kind=sqlite` yet.
 4. **Purchasing schema is forward-looking** for WP-02. Existing separate historic order detail is retained in archive; current order flags cannot safely be inferred.
