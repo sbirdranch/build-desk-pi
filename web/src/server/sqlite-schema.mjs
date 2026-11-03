@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS build_revisions (
 CREATE TABLE IF NOT EXISTS print_parts (
   build_id TEXT NOT NULL, id TEXT NOT NULL, name TEXT NOT NULL,
   section TEXT NOT NULL, source TEXT NOT NULL, material TEXT NOT NULL,
-  required_qty INTEGER CHECK(required_qty IS NULL OR required_qty >= 0),
-  opening_qty INTEGER NOT NULL CHECK(opening_qty >= 0),
-  installed_qty INTEGER NOT NULL CHECK(installed_qty >= 0),
+  required_qty INTEGER CHECK(required_qty IS NULL OR (typeof(required_qty)='integer' AND required_qty >= 0)),
+  opening_qty INTEGER NOT NULL CHECK(typeof(opening_qty)='integer' AND opening_qty >= 0),
+  installed_qty INTEGER NOT NULL CHECK(typeof(installed_qty)='integer' AND installed_qty >= 0),
   notes TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(build_id,id), FOREIGN KEY(build_id) REFERENCES builds(id) ON DELETE RESTRICT
 );
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS plates (
 );
 CREATE TABLE IF NOT EXISTS plate_assignments (
   build_id TEXT NOT NULL, id TEXT NOT NULL, plate_id TEXT NOT NULL,
-  part_id TEXT NOT NULL, copies INTEGER CHECK(copies IS NULL OR copies >= 0),
+  part_id TEXT NOT NULL, copies INTEGER CHECK(copies IS NULL OR (typeof(copies)='integer' AND copies >= 0)),
   confirmed INTEGER NOT NULL CHECK(confirmed IN (0,1)), note TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(build_id,id), UNIQUE(build_id,plate_id,part_id),
   FOREIGN KEY(build_id,plate_id) REFERENCES plates(build_id,id) ON DELETE RESTRICT,
@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS plate_preparations (
 CREATE TABLE IF NOT EXISTS preparation_items (
   build_id TEXT NOT NULL, plate_id TEXT NOT NULL, mapping_id TEXT NOT NULL,
   included INTEGER NOT NULL CHECK(included IN (0,1)),
-  copies INTEGER CHECK(copies IS NULL OR copies >= 0),
-  planned_qty INTEGER CHECK(planned_qty IS NULL OR planned_qty >= 0),
+  copies INTEGER CHECK(copies IS NULL OR (typeof(copies)='integer' AND copies >= 0)),
+  planned_qty INTEGER CHECK(planned_qty IS NULL OR (typeof(planned_qty)='integer' AND planned_qty >= 0)),
   PRIMARY KEY(build_id,plate_id,mapping_id),
   FOREIGN KEY(build_id,plate_id) REFERENCES plate_preparations(build_id,plate_id) ON DELETE RESTRICT,
   FOREIGN KEY(build_id,mapping_id) REFERENCES plate_assignments(build_id,id) ON DELETE RESTRICT
@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS print_job_items (
   part_id TEXT NOT NULL, mapping_id TEXT NOT NULL,
   file_id TEXT NOT NULL, file_revision TEXT NOT NULL, filename TEXT NOT NULL,
   plate_number INTEGER NOT NULL, plate_name TEXT NOT NULL,
-  runs INTEGER NOT NULL CHECK(runs >= 0), planned_qty INTEGER NOT NULL CHECK(planned_qty >= 0),
-  accepted_qty INTEGER CHECK(accepted_qty IS NULL OR accepted_qty >= 0),
-  rejected_qty INTEGER CHECK(rejected_qty IS NULL OR rejected_qty >= 0),
+  runs INTEGER NOT NULL CHECK(runs >= 0), planned_qty INTEGER NOT NULL CHECK(typeof(planned_qty)='integer' AND planned_qty >= 0),
+  accepted_qty INTEGER CHECK(accepted_qty IS NULL OR (typeof(accepted_qty)='integer' AND accepted_qty >= 0)),
+  rejected_qty INTEGER CHECK(rejected_qty IS NULL OR (typeof(rejected_qty)='integer' AND rejected_qty >= 0)),
   profile TEXT NOT NULL, material TEXT NOT NULL, notes TEXT NOT NULL,
   PRIMARY KEY(build_id,job_id,line_no),
   FOREIGN KEY(build_id,job_id) REFERENCES print_jobs(build_id,id) ON DELETE RESTRICT,
@@ -82,8 +82,8 @@ CREATE TABLE IF NOT EXISTS print_job_items (
 );
 CREATE TABLE IF NOT EXISTS inspection_drafts (
   build_id TEXT NOT NULL, job_id TEXT NOT NULL, mapping_id TEXT NOT NULL,
-  accepted_qty INTEGER CHECK(accepted_qty IS NULL OR accepted_qty >= 0),
-  rejected_qty INTEGER CHECK(rejected_qty IS NULL OR rejected_qty >= 0),
+  accepted_qty INTEGER CHECK(accepted_qty IS NULL OR (typeof(accepted_qty)='integer' AND accepted_qty >= 0)),
+  rejected_qty INTEGER CHECK(rejected_qty IS NULL OR (typeof(rejected_qty)='integer' AND rejected_qty >= 0)),
   PRIMARY KEY(build_id,job_id,mapping_id),
   FOREIGN KEY(build_id,job_id) REFERENCES print_jobs(build_id,id) ON DELETE RESTRICT
 );
@@ -94,8 +94,8 @@ CREATE TABLE IF NOT EXISTS purchase_parts (
   build_id TEXT NOT NULL, id TEXT NOT NULL, category TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL, specification TEXT NOT NULL DEFAULT '',
   designer_requirement TEXT NOT NULL DEFAULT '',
-  required_qty INTEGER CHECK(required_qty IS NULL OR required_qty >= 0),
-  on_hand_qty INTEGER CHECK(on_hand_qty IS NULL OR on_hand_qty >= 0),
+  required_qty INTEGER CHECK(required_qty IS NULL OR (typeof(required_qty)='integer' AND required_qty >= 0)),
+  on_hand_qty INTEGER CHECK(on_hand_qty IS NULL OR (typeof(on_hand_qty)='integer' AND on_hand_qty >= 0)),
   ordered INTEGER NOT NULL DEFAULT 0 CHECK(ordered IN (0,1)),
   vendor_id INTEGER, product_url TEXT NOT NULL DEFAULT '',
   ordered_date TEXT, notes TEXT NOT NULL DEFAULT '',
