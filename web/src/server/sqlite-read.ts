@@ -26,7 +26,7 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
  }));
  const plates:Plate[]=rows(db,'SELECT * FROM plates WHERE build_id=? ORDER BY file_id,plate_number',buildId).map(p=>{
   const id=str(p.id);
-  const mappings=rows(db,'SELECT * FROM plate_assignments WHERE build_id=? AND plate_id='+"'"+id.replaceAll("'","''")+"' ORDER BY id",buildId);
+  const mappings=db.prepare('SELECT * FROM plate_assignments WHERE build_id=? AND plate_id=? ORDER BY id').all(buildId,id) as DBRow[];
   const prep=db.prepare('SELECT * FROM plate_preparations WHERE build_id=? AND plate_id=?').get(buildId,id) as DBRow|undefined;
   const preparation:Preparation|undefined=prep?{
    runs:Number(prep.runs),material:str(prep.material),profile:str(prep.profile),sourceHash:str(prep.source_hash),
