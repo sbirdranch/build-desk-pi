@@ -76,7 +76,7 @@ def main():
                 if attempt==29:raise
                 time.sleep(1)
         with sqlite3.connect(target) as db:assert before==registration.build_fingerprints(db,excluded=id)
-        record=json.loads((base/'local-data/release.json').read_text());record.update(phase='Phase 4 — second truck; loader pending',database=str(target),previousDatabase=str(source),rollbackDirectory=str(saved),existingDataUnchanged=True,baselineRevisions=expected,deployedAt=datetime.datetime.now(datetime.timezone.utc).isoformat())
+        record=json.loads((base/'local-data/release.json').read_text());record.update(phase='Phase 4 — second truck; loader pending',database=str(target),previousDatabase=str(source),rollbackDirectory=str(saved),databaseUnchanged=False,existingDataUnchanged=True,baselineRevisions=expected,acceptanceCommit=gates['commit'],verifiedAt=datetime.datetime.now(datetime.timezone.utc).isoformat(),deployedAt=datetime.datetime.now(datetime.timezone.utc).isoformat())
         (saved/'existing-data-fingerprints.json').write_text(json.dumps(before,indent=2));(saved/'cutover.json').write_text(json.dumps(record,indent=2));(base/'local-data/release.json').write_text(json.dumps(record,indent=2))
         print(json.dumps(record,indent=2))
     except Exception:

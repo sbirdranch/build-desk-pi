@@ -2,7 +2,7 @@
 Version: 0.2 (three-instance validation plan)
 Date: 2026-11-03
 Project: Build Desk Pi — Refinement_v2
-Status: Phase 4 in progress. The second truck source is `X:\3DModels\rc_Cat745instance2`; its designer STLs, original AI layout preparation and independent import are documented in [Second truck preparation](second-truck-import.md). Validate and deploy the second instance first. The loader remains pending the user's subsequent source path and review. Broad styling changes remain deferred.
+Status: Phase 4 partly accepted. The second truck from `X:\3DModels\rc_Cat745instance2` is validated and deployed independently; see [acceptance and rollback](second-truck-acceptance-2026-11-04.md) and [source preparation](second-truck-import.md). The original truck's data is preserved. The loader remains pending the user's subsequent source path and review; full three-vehicle acceptance is not yet claimed. Broad styling changes remain deferred.
 
 ## Objective
 Verify the existing multiple-build capability with two additional independent build instances while retaining the current Kitten 745 build and its data unchanged. This is validation and targeted repair, not permission to replace the build architecture wholesale.
@@ -58,11 +58,11 @@ H. Reconcile outcomes with WP-01 schema/migration and WP-02/WP-03 refinements, t
 - Runtime registry/NAS path verification before deployment.
 
 ## Open inputs
-- Fresh designer-source package for the second Kitten 745 instance, to be supplied by user.
+- Second designer package supplied and validated; required assembly quantities and conflicting bearing counts remain explicitly unconfirmed.
 - Identity and designer-source data package for the loader model, to be supplied by user.
-- Whether the second build shares the H2D printer or requires a different printer configuration.
-- Actual source files' schema, assets and mapping completeness.
-- Whether the user wants test-only acceptance or eventual immediate addition of second build to production after signoff.
+- The second build shares `h2d-main`; exclusion passed in isolated tests. Confirm the loader's printer identity when supplied.
+- Loader source files' schema, assets and mapping completeness.
+- Production updates and pushes were authorized. The second build is live; the loader follows subsequent review.
 
 ## Out of scope
 A general-purpose build registration wizard, global parts inventory reconciliation, arbitrary vendor automations, using a copy of existing Kitten 745 tracking history in place of a fresh independent second instance, replacing user-supplied model data with synthetic production data.
