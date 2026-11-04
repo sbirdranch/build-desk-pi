@@ -21,12 +21,28 @@ export async function acquisitionReport(build:{id:string;name:string},data:Acqui
   for(const p of rows){
    const description=p.description+(p.specification?' - '+p.specification:'');
    const values=kind==='source'?[p.id,description,p.required===null?'Unknown':String(p.required),p.vendor,p.url]:[p.id,description,p.required===null?'Unknown':String(p.required),p.onHand===null?'Unknown':String(p.onHand),p.ordered?'Yes':'No'];
-   doc.fontSize(9);const height=Math.max(28,...values.map((v,i)=>doc.heightOfString(v||' ',{width:widths[i]-14,lineGap:2})+14));
-   if(height>400)throw Error('A part description is too long to fit the report. Shorten the source description.');
-   if(y+height>548)newPage();
-   if(rowNo++%2===0)doc.rect(32,y,778,height).fill('#f0f3f3');
-   let x=32;values.forEach((v,i)=>{doc.fillColor(kind==='source'&&i===4&&p.url?'#225b7e':'#20313d').text(v,x+7,y+7,{width:widths[i]-14,lineGap:2,...(kind==='source'&&i===4&&p.url?{link:p.url,underline:true}:{})});x+=widths[i]});
-   y+=height;doc.moveTo(32,y).lineTo(810,y).strokeColor('#d8dfe0').lineWidth(.4).stroke();
+   doc.fontSize(9);
+   // A valid long product URL/description must continue across pages, never clip or fail.
+   const chunks=values.map((value,i)=>{
+    if(doc.heightOfString(value||' ',{width:widths[i]-14,lineGap:2})<=380)return [value];
+    const result:string[]=[];let remaining=Array.from(value);
+    while(remaining.length){
+     let lo=1,hi=remaining.length;
+     while(lo<hi){const mid=Math.ceil((lo+hi)/2);if(doc.heightOfString(remaining.slice(0,mid).join(''),{width:widths[i]-14,lineGap:2})<=380)lo=mid;else hi=mid-1;}
+     let end=lo;if(lo<remaining.length){const space=remaining.slice(0,lo).lastIndexOf(' ');if(space>lo*.8)end=space+1;}
+     result.push(remaining.slice(0,end).join(''));remaining=remaining.slice(end);
+    }
+    return result.length?result:[''];
+   });
+   const fragments=Math.max(...chunks.map(c=>c.length));
+   for(let fragment=0;fragment<fragments;fragment++){
+    const cells=chunks.map(c=>c[fragment]||'');if(fragment>0)cells[0]=p.id+' (continued)';
+    const height=Math.max(28,...cells.map((v,i)=>doc.heightOfString(v||' ',{width:widths[i]-14,lineGap:2})+14));
+    if(y+height>548)newPage();
+    if(rowNo++%2===0)doc.rect(32,y,778,height).fill('#f0f3f3');
+    let x=32;cells.forEach((v,i)=>{doc.fillColor(kind==='source'&&i===4&&p.url?'#225b7e':'#20313d').text(v,x+7,y+7,{width:widths[i]-14,lineGap:2,...(kind==='source'&&i===4&&p.url?{link:p.url,underline:true}:{})});x+=widths[i]});
+    y+=height;doc.moveTo(32,y).lineTo(810,y).strokeColor('#d8dfe0').lineWidth(.4).stroke();
+   }
   }
  }
  const progress=acquisitionProgress(data.parts);
