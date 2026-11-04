@@ -87,3 +87,22 @@ can keep the latest schema-3 database. The cutover helper automatically restores
 the prior registry on startup failure only when no post-cutover edits exist.
 
 The loader is deliberately deferred until the second truck is tested and reviewed.
+
+## Designer orientation requirement — subsequent user clarification
+
+The user requires the designer's part orientation to be preserved. An audit of
+all seven Truck 2 drafts found 65 of 101 parts rotated around Z by Bambu's arrange
+operation. No component/build transform tilts or flips a part. Comparing every
+embedded geometry vertex against the hash-verified original STL, after translation
+only, confirmed all 101 original geometry axes (maximum numerical difference
+0.000054 mm). Thus the original print face is retained, but exact rotations and
+positions are not. Source STLs and existing 3MFs were not modified by this audit.
+
+The preparation helper now rejects templates with nonidentity rotation/scale
+before writing an output directory. The earlier arranged templates, including
+the current drafts, therefore cannot silently be reused for future generation.
+They need an orientation-preserving layout process first. Future generation must
+keep designer rotations fixed; any necessary plate translation must be explicit.
+Do not assume a preserved print face alone satisfies this requirement or proves
+optimal printing. Local audit results are retained under `local-data/phase4` as
+`orientation-transforms.json` and `orientation-geometry.json`.

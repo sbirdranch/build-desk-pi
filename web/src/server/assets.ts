@@ -1,9 +1,9 @@
-import {readFile,writeFile,mkdir,stat,open,unlink} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,open,unlink} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
 import JSZip from 'jszip';
 import {XMLParser} from 'fast-xml-parser';
-import {spawn,execFile} from 'node:child_process';
+import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import type {BuildConfig,AssetBundle,Snapshot,Asset} from '../core/types';
 import {assetRoot,root} from './registry';
@@ -14,11 +14,10 @@ export function modelPath(config:BuildConfig,filename:string){if(path.basename(f
 export async function sourceHashes(config:BuildConfig,snapshot:Snapshot){const result:Record<string,string|null>={};await Promise.all(snapshot.files.map(async f=>{try{result[f.id]=digest(await readFile(modelPath(config,f.filename)));}catch{result[f.id]=null;}}));return result;}
 export function modelAccessError(error:unknown,filename:string):DomainError{
  const code=(error as NodeJS.ErrnoException)?.code;
- if(code==='EPERM'||code==='EACCES')return new DomainError(`Build Desk does not have permission to access the model file ${filename}. Stop Build Desk and start Start-Build-Desk.cmd from your normal Windows account with access to the model folder.`,503);
+ if(code==='EPERM'||code==='EACCES')return new DomainError(`Build Desk does not have permission to access the model file ${filename}. Check the Build Desk service account access to the configured model folder and NAS connection.`,503);
  if(code==='ENOENT'||code==='ENOTDIR')return new DomainError(`Model file not found: ${filename}. Check the configured model folder and NAS connection.`,404);
  return new DomainError(`Could not read model file ${filename}. Check the model folder and NAS connection.`,503);
 }
-export async function openBambu(config:BuildConfig,snapshot:Snapshot,fileId:string){const file=snapshot.files.find(f=>f.id===fileId);if(!file)throw new DomainError('Model file not found.');const filename=modelPath(config,file.filename);try{await stat(filename)}catch(e){throw modelAccessError(e,filename)}const exe=config.models.bambuExecutable;if(!exe)throw new DomainError('Bambu Studio has not been configured for this build.');try{await stat(exe)}catch{throw new DomainError('Bambu Studio could not be found at the configured application path. Check the Bambu Studio installation.',503)}await new Promise<void>((resolve,reject)=>{const child=spawn(exe,[filename],{detached:true,stdio:'ignore',windowsHide:false});child.once('error',()=>reject(new DomainError('Windows could not launch Bambu Studio. Start Build Desk from your normal Windows desktop account and check the configured application path.',503)));child.once('spawn',()=>{child.unref();resolve();});});}
 const array=<T,>(v:T|T[]|undefined):T[]=>v===undefined?[]:Array.isArray(v)?v:[v];
 type XmlNode=Record<string,unknown>;
 function metadata(node:XmlNode){return Object.fromEntries(array(node.metadata as XmlNode|XmlNode[]).map(m=>[String(m['@_key']),String(m['@_value']??'')]))}

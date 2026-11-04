@@ -23,6 +23,19 @@ def md(node):
     return {x.get('key'): x.get('value') for x in node.findall('metadata')}
 
 
+def require_fixed_rotations(path):
+    """Reject layouts that rotate/scale the imported designer geometry."""
+    identity = [1,0,0,0,1,0,0,0,1]
+    with zipfile.ZipFile(path) as archive:
+        for name in archive.namelist():
+            if not name.endswith('.model'): continue
+            for node in ET.fromstring(archive.read(name)).iter():
+                if 'transform' not in node.attrib: continue
+                values = [float(x) for x in node.get('transform').split()]
+                if len(values) != 12 or any(abs(x-y)>1e-6 for x,y in zip(values[:9],identity)):
+                    raise ValueError(f'{path.name}: layout rotates or scales a designer part. Prepare a layout with fixed designer rotations before reuse.')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     for arg in ['source-manifest', 'catalog', 'templates', 'template-manifest', 'profiles', 'wheel', 'part-assets', 'purchases', 'output']:
@@ -46,6 +59,8 @@ def main():
     assert len(layouts) == 6
     for row in layouts:
         assert sha(a.templates / row['filename']) == row['sha256'], row['filename']
+        require_fixed_rotations(a.templates / row['filename'])
+    require_fixed_rotations(a.wheel)
     output = a.output.resolve()
     models = output / 'models'; assets = output / 'assets'
     models.mkdir(parents=True); assets.mkdir()

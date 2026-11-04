@@ -59,7 +59,7 @@ Compare SHA-256 hashes of the transferred workbook and assets with the stopped W
 
 Mount the NAS model directory read-only at `/mnt/builddesk-models`, or copy the saved 3MFs there. A Windows UNC path cannot be used directly on Linux. Use a private root-readable SMB credentials file outside Git if required. Confirm the service account can read the files. If the mount is required, add `RequiresMountsFor=/mnt/builddesk-models` to the service's `[Unit]` section. No mount credentials are supplied by Build Desk.
 
-Bambu Studio stays on Windows. Open/save the same NAS model files manually there. The Pi cannot launch Windows Bambu Studio from the browser; the existing Open in Bambu action reports that no executable is configured. Reload Print Details can import saved metadata, but regenerated 3D previews require a configured compatible Python renderer. Large 3MF parsing/rendering has not been memory-qualified on Pi 3. Retain the transferred previews and defer rendering to the Windows workflow until tested. Do not infer accepted quantities from printer status or preview refreshes.
+Bambu Studio stays on Windows. Open/save the same NAS model files manually there. The UI has no Open in Bambu action or executable-launch configuration; open the NAS projects directly in Windows Bambu Studio. Reload Print Details can import saved metadata, but regenerated 3D previews require a configured compatible Python renderer. Large 3MF parsing/rendering has not been memory-qualified on Pi 3. Retain the transferred previews and defer rendering to the Windows workflow until tested. Do not infer accepted quantities from printer status or preview refreshes.
 
 ## Install the service
 
