@@ -16,6 +16,8 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
  if(!build)throw Error('Build not found');
  const rev=db.prepare('SELECT revision,updated_at FROM build_revisions WHERE build_id=?').get(buildId) as DBRow|undefined;
  if(!rev)throw Error('Build revision missing');
+ const compatibility=db.prepare('SELECT * FROM runtime_compatibility WHERE build_id=?').get(buildId) as DBRow|undefined;
+ const savedPreparations=compatibility?JSON.parse(str(compatibility.preparations_json)):{};
  const parts:Part[]=rows(db,'SELECT * FROM print_parts WHERE build_id=? ORDER BY id',buildId).map(p=>({
    id:str(p.id),name:str(p.name),section:str(p.section),source:str(p.source),material:str(p.material),
    required:opt(p.required_qty),opening:Number(p.opening_qty),accepted:0,installed:Number(p.installed_qty),notes:str(p.notes)
@@ -32,7 +34,7 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
    runs:Number(prep.runs),material:str(prep.material),profile:str(prep.profile),sourceHash:str(prep.source_hash),
    notes:str(prep.notes),savedAt:str(prep.saved_at),
    // Compatibility shape until WP-03 removes the legacy attestation field.
-   layoutConfirmed:true,
+   layoutConfirmed:savedPreparations[id]?.layoutConfirmed===true,
    items:(db.prepare('SELECT * FROM preparation_items WHERE build_id=? AND plate_id=? ORDER BY mapping_id').all(buildId,id) as DBRow[])
      .map(i=>({mappingId:str(i.mapping_id),included:!!i.included,copies:opt(i.copies),planned:opt(i.planned_qty)}))
   }:undefined;
@@ -58,7 +60,7 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
   status:p.required_qty==null||p.on_hand_qty==null?'Confirm quantity':Number(p.on_hand_qty)>=Number(p.required_qty)?'On hand':'Need to source'
  }));
  const snapshot:Snapshot={build:{id:buildId,name:str(build.name)},revision:String(rev.revision),recordedAt:str(rev.updated_at),
-  parts,files,plates,jobs,audit:[],purchasing:{parts:purchaseParts,items:[],ledger:[]}};
+  parts,files,plates,jobs,audit:compatibility?JSON.parse(str(compatibility.audit_json)):[],purchasing:compatibility?JSON.parse(str(compatibility.purchasing_json)):{parts:purchaseParts,items:[],ledger:[]}};
  recalculate(snapshot);
  return snapshot;
 }

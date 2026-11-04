@@ -1,7 +1,7 @@
 import {open,unlink,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import type {BuildConfig} from '../core/types';
-import {createStore} from './excel-store';
+import {createStore} from './data-store';
 import {DomainError} from '../core/domain';
 import {root} from './registry';
 export async function withPrinterSlot<T>(config:BuildConfig,registry:BuildConfig[],action:()=>Promise<T>):Promise<T>{

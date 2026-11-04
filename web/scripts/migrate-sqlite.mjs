@@ -4,7 +4,9 @@
 import ExcelJS from 'exceljs';
 import {DatabaseSync} from 'node:sqlite';
 import {readFile,writeFile,stat,unlink} from 'node:fs/promises';
-import {existsSync} from 'node:fs';
+import {existsSync,openSync,closeSync} from 'node:fs';
+import {readSQLiteSnapshot} from '../src/server/sqlite-read.ts';
+import {assertSnapshotsEqual} from '../src/server/sqlite-validation.ts';
 import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import {decode} from '../src/server/excel-store.ts';
@@ -39,6 +41,7 @@ for(const job of snapshot.jobs)for(const item of job.items){
 const audit={source,sourceSha256:hash(bytes),buildId,buildName,importedAt:new Date().toISOString(),counts:{parts:snapshot.parts.length,files:snapshot.files.length,plates:snapshot.plates.length,assignments:snapshot.plates.reduce((n,x)=>n+x.assignments.length,0),jobs:snapshot.jobs.length,jobItems:snapshot.jobs.reduce((n,x)=>n+x.items.length,0),purchasingParts:p?.parts.length||0},warnings:[]};
 let db;
 try{
+  closeSync(openSync(output,'wx',0o600));
   db=new DatabaseSync(output);
   db.exec('PRAGMA foreign_keys=ON');
   initializeSchema(db);
@@ -46,7 +49,7 @@ try{
   const at=new Date().toISOString();
   db.exec('BEGIN IMMEDIATE');
   try{
-    insert('INSERT INTO builds(id,name,active,printer_id,created_at) VALUES(?,?,?,?,?)',[[buildId,buildName,1,null,at]]);
+    insert('INSERT INTO builds(id,name,active,printer_id,created_at) VALUES(?,?,?,?,?)',[[buildId,buildName,1,args['printer-id']||'build-'+buildId,at]]);
     insert('INSERT INTO build_revisions(build_id,revision,updated_at) VALUES(?,?,?)',[[buildId,0,at]]);
     insert('INSERT INTO print_parts(build_id,id,name,section,source,material,required_qty,opening_qty,installed_qty,notes) VALUES(?,?,?,?,?,?,?,?,?,?)',
       snapshot.parts.map(x=>[buildId,x.id,x.name,x.section,x.source,x.material,x.required,x.opening,x.installed,x.notes]));
@@ -79,6 +82,9 @@ try{
       db.prepare('INSERT INTO purchase_parts(build_id,id,category,description,specification,designer_requirement,required_qty,on_hand_qty,ordered,vendor_id,product_url,ordered_date,notes) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)')
         .run(buildId,x.id,x.category,x.name,x.specification,x.requirement,x.needed,x.onHand,0,addVendor(x.supplier||''),x.link||'',x.orderedDate||null,ascii);
     }
+    db.prepare('INSERT INTO runtime_compatibility VALUES(?,?,?,?)').run(buildId,JSON.stringify(snapshot.purchasing),JSON.stringify(snapshot.audit),JSON.stringify(Object.fromEntries(snapshot.plates.filter(p=>p.preparation).map(p=>[p.id,p.preparation]))));
+    db.prepare('INSERT INTO migration_sources VALUES(?,?,?,?)').run(buildId,hash(bytes),JSON.stringify(snapshot),at);
+    for(const a of snapshot.audit)db.prepare('INSERT OR IGNORE INTO write_requests VALUES(?,?,?,?,?,?)').run(buildId,a.requestId,a.action,a.summary,a.at,0);
     db.exec('COMMIT');
   }catch(e){db.exec('ROLLBACK');throw e;}
   const errors=db.prepare('PRAGMA foreign_key_check').all();
@@ -135,7 +141,9 @@ try{
     verify('purchase_parts',x.id,{category:x.category,description:x.name,specification:x.specification,designer_requirement:x.requirement,required_qty:x.needed,on_hand_qty:x.onHand,ordered:0,product_url:x.link||'',ordered_date:x.orderedDate||null,notes:expectedNotes},
       db.prepare('SELECT category,description,specification,designer_requirement,required_qty,on_hand_qty,ordered,product_url,ordered_date,notes FROM purchase_parts WHERE build_id=? AND id=?').get(buildId,x.id));
   }
-  audit.verified={...found,acceptedTotalsMatched:totals.length,fieldComparedRecords:checkedRows,foreignKeyCheck:'ok',integrityCheck:'ok'};
+  assertSnapshotsEqual(snapshot,readSQLiteSnapshot(db,buildId));
+  if(hash(await readFile(source))!==hash(bytes))fail('Source changed during migration');
+  audit.verified={snapshotReadBack:'all fields matched',...found,acceptedTotalsMatched:totals.length,fieldComparedRecords:checkedRows,foreignKeyCheck:'ok',integrityCheck:'ok'};
   await writeFile(output+'.migration-report.json',JSON.stringify(audit,null,2),{flag:'wx'});
   // Legacy purchase orders/ledgers retained separately, never imported into new active schema.
   await writeFile(output+'.legacy-purchasing.json',JSON.stringify({sourceSha256:audit.sourceSha256,parts:p?.parts||[],items:p?.items||[],ledger:p?.ledger||[]},null,2),{flag:'wx'});

@@ -1,6 +1,6 @@
 // SQLite schema for Build Desk v2. A new database starts at schema version 1.
 // This module intentionally has no runtime or Excel dependencies.
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -109,6 +109,15 @@ CREATE TABLE IF NOT EXISTS write_requests (
   summary TEXT NOT NULL, committed_at TEXT NOT NULL, revision INTEGER NOT NULL,
   PRIMARY KEY(build_id,request_id), FOREIGN KEY(build_id) REFERENCES builds(id) ON DELETE RESTRICT
 );
+-- Transitional payload preserves the current Purchasing UI until WP-02 replaces it.
+CREATE TABLE IF NOT EXISTS runtime_compatibility (
+ build_id TEXT PRIMARY KEY REFERENCES builds(id), purchasing_json TEXT NOT NULL,
+ audit_json TEXT NOT NULL, preparations_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS migration_sources (
+ build_id TEXT PRIMARY KEY REFERENCES builds(id), source_sha256 TEXT NOT NULL,
+ source_snapshot_json TEXT NOT NULL, imported_at TEXT NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_plate_assignments_part ON plate_assignments(build_id,part_id);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON print_jobs(build_id,status);
 CREATE INDEX IF NOT EXISTS idx_job_items_part ON print_job_items(build_id,part_id);
@@ -116,11 +125,15 @@ CREATE INDEX IF NOT EXISTS idx_purchase_ordered ON purchase_parts(build_id,order
 CREATE INDEX IF NOT EXISTS idx_purchase_vendor ON purchase_parts(vendor_id);
 `;
 export function initializeSchema(db) {
-  db.exec('PRAGMA foreign_keys=ON');
+ db.exec('PRAGMA foreign_keys=ON');
+ const exists=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'").get();
+ const found=exists?db.prepare('SELECT MAX(version) version FROM schema_migrations').get():null;
+ if(found?.version>SCHEMA_VERSION)throw Error('Unsupported SQLite schema version '+found.version);
+ db.exec('BEGIN IMMEDIATE');
+ try {
   db.exec(SCHEMA_SQL);
-  const found = db.prepare('SELECT version FROM schema_migrations ORDER BY version DESC LIMIT 1').get();
-  if (found && found.version !== SCHEMA_VERSION) throw Error('Unsupported SQLite schema version '+found.version);
-  if (!found) db.prepare('INSERT INTO schema_migrations(version,description,applied_at) VALUES(?,?,?)')
-    .run(SCHEMA_VERSION,'Initial normalized Build Desk schema',new Date().toISOString());
-  if (db.prepare('PRAGMA foreign_key_check').all().length) throw Error('SQLite foreign key validation failed');
+  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Preserve Phase 1 runtime compatibility and migration provenance',new Date().toISOString());
+  if(db.prepare('PRAGMA foreign_key_check').all().length)throw Error('SQLite foreign key validation failed');
+  db.exec('COMMIT');
+ }catch(e){db.exec('ROLLBACK');throw e;}
 }

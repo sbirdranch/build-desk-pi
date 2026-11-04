@@ -6,7 +6,7 @@ import {XMLParser} from 'fast-xml-parser';
 import type {BuildConfig,Snapshot,Command,ImportedPlate} from '../core/types';
 import {DomainError} from '../core/domain';
 import {refreshFile,modelPath,sourceHashes} from './assets';
-import {createStore} from './excel-store';
+import {createStore} from './data-store';
 import {root} from './registry';
 
 const many=<T,>(value:T|T[]|undefined):T[]=>value===undefined?[]:Array.isArray(value)?value:[value];

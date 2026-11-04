@@ -1,6 +1,6 @@
 import {randomUUID,createHmac,timingSafeEqual} from 'node:crypto';
 import {build,root} from '@/server/registry';
-import {createStore} from '@/server/excel-store';
+import {createStore} from '@/server/data-store';
 import {requireEditor} from '@/server/security';
 import {DomainError} from '@/core/domain';
 import {applyPurchase,orderKey} from '@/core/purchasing';
