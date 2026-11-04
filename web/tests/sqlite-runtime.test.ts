@@ -30,10 +30,9 @@ test('SQLite runtime: shared printer race, inspection, Purchasing, rollback and 
   const config=(id:string):BuildConfig=>({id,name:id,active:true,store:{kind:'sqlite',path:file,schema:'build-desk-v2'},assets:{root:'',catalog:''},models:{directory:''},printer:{id:'shared',name:'Printer'},workflow:{defaultProfile:'Standard',materials:['PETG'],maxPrintingJobs:1},modules:['printing','purchasing']});
   const truck=createStore(config('truck')),loader=createStore(config('loader'));
   const save=async(store:typeof truck,command:Command,hashes={})=>store.commit((await store.load()).revision,randomUUID(),command,hashes);
-  const prep:Preparation={runs:1,material:'PETG',profile:'Standard',sourceHash:'hash',layoutConfirmed:false,items:[{mappingId:'m',included:true,copies:2,planned:2}],notes:'',savedAt:''};
+  const prep:Preparation={runs:1,material:'PETG',profile:'Standard',sourceHash:'hash',items:[{mappingId:'m',included:true,copies:2,planned:2}],notes:'',savedAt:''};
   await save(truck,{type:'save-preparation',plateId:'plate',preparation:prep},{f:'hash'});
-  await assert.rejects(save(truck,{type:'start',plateId:'plate'},{f:'hash'}),/confirmed/);
-  prep.layoutConfirmed=true;
+
   for(const store of [truck,loader])await save(store,{type:'save-preparation',plateId:'plate',preparation:prep},{f:'hash'});
   const race=await Promise.allSettled([save(truck,{type:'start',plateId:'plate'},{f:'hash'}),save(loader,{type:'start',plateId:'plate'},{f:'hash'})]);
   assert.equal(race.filter(x=>x.status==='fulfilled').length,1);

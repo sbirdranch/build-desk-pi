@@ -1,7 +1,7 @@
 export type BuildConfig={id:string;name:string;active:boolean;store:{kind:'excel'|'sqlite';path:string;schema:string};assets:{root:string;catalog:string;references?:string;renderer?:string};models:{directory:string;bambuExecutable?:string};printer?:{id?:string;name:string};workflow:{defaultProfile:string;materials:string[];maxPrintingJobs:number};modules:string[]};
 export type Part={id:string;name:string;section:string;source:string;material:string;required:number|null;opening:number;accepted:number;installed:number;notes:string};
 export type Assignment={id:string;partId:string;copies:number|null;confirmed:boolean;note?:string};
-export type Preparation={runs:number;material:string;profile:string;layoutConfirmed:boolean;sourceHash:string;items:{mappingId:string;included:boolean;copies:number|null;planned:number|null}[];notes:string;savedAt:string};
+export type Preparation={runs:number;material:string;profile:string;sourceHash:string;items:{mappingId:string;included:boolean;copies:number|null;planned:number|null}[];notes:string;savedAt:string};
 export type Plate={id:string;fileId:string;number:number;name:string;section:string;assignments:Assignment[];unmappedObjects?:string[];preparation?:Preparation};
 export type ModelFile={id:string;filename:string;revision:string;profile:string;material:string;section:string;sourceHash?:string;importedAt?:string};
 export type JobItem={partId:string;mappingId:string;fileId:string;fileRevision:string;filename:string;plateNumber:number;plateName:string;runs:number;planned:number;accepted:number|null;rejected:number|null;profile:string;material:string;notes:string};

@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import {preparationData} from '../core/preparation';
 import {decodePurchasing} from './purchasing-store';
 import {readFile,writeFile,copyFile,rename,unlink,mkdir,open,stat} from 'node:fs/promises';
 import path from 'node:path';
@@ -36,7 +37,7 @@ export function decode(wb:ExcelJS.Workbook,config:BuildConfig,revision:string,re
   if(job.status!==status)throw new DomainError('History job '+id+' has inconsistent row statuses; resolve it before continuing.');
   job.items.push({partId:text(r[2]),mappingId:text(r[3]),fileId:text(r[4]),fileRevision:text(r[5]),plateName:text(r[6]),runs:Number(r[7]||0),planned:Number(r[8]||0),accepted:count(r[9]),rejected:count(r[10]),profile:text(r[12]),material:text(r[13]),notes:text(r[14]),filename:text(r[16]),plateNumber:Number(r[17]||0)});
  }
- const pSheet=wb.getWorksheet(sheets.preps);if(pSheet)for(const r of rows(pSheet,4)){const p=plates.find(p=>p.id===r[0]);if(p)p.preparation=safeJSON<Preparation>(r[1]);}
+ const pSheet=wb.getWorksheet(sheets.preps);if(pSheet)for(const r of rows(pSheet,4)){const p=plates.find(p=>p.id===r[0]);if(p){const prep=safeJSON<Preparation>(r[1]);p.preparation=prep?preparationData(prep):undefined;}}
  const dSheet=wb.getWorksheet(sheets.drafts);if(dSheet)for(const r of rows(dSheet,3)){const j=jobs.find(j=>j.id===r[0]);if(j)j.draft=safeJSON<Job['draft']>(r[1]);}
  const audit:Audit[]=wb.getWorksheet(sheets.audit)?rows(wb.getWorksheet(sheets.audit)!,8).map(r=>({requestId:text(r[0]),at:text(r[1]),action:text(r[2]),target:text(r[3]),before:text(r[4]),after:text(r[5]),summary:text(r[6])})):[];
  const snapshot:Snapshot={build:{id:config.id,name:config.name},revision,recordedAt,parts,files,plates,jobs,audit,purchasing:decodePurchasing(wb)};recalculate(snapshot);return snapshot;

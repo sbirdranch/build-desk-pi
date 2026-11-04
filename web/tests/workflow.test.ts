@@ -25,7 +25,7 @@ async function fixture(id='test-build'){
  const config:BuildConfig={id,name:id,active:true,store:{kind:'excel',path:filename,schema:'master-tracker-v1'},assets:{root:dir,catalog:'catalog.json'},models:{directory:dir},workflow:{defaultProfile:'Standard',materials:['PETG'],maxPrintingJobs:1},modules:['printing']};
  return {dir,filename,config,store:new ExcelStore(config)};
 }
-function preparation():Preparation{return {runs:1,material:'PETG',profile:'Standard',layoutConfirmed:true,sourceHash:'source-a',items:[{mappingId:'map-one',included:true,copies:2,planned:2}],notes:'',savedAt:''}}
+function preparation():Preparation{return {runs:1,material:'PETG',profile:'Standard',sourceHash:'source-a',items:[{mappingId:'map-one',included:true,copies:2,planned:2}],notes:'',savedAt:''}}
 async function start(f:Awaited<ReturnType<typeof fixture>>){let s=await f.store.load();s=(await f.store.commit(s.revision,randomUUID(),{type:'save-preparation',plateId:'file-one-P01',preparation:preparation()},{'file-one':'source-a'})).snapshot;return (await f.store.commit(s.revision,randomUUID(),{type:'start',plateId:'file-one-P01'},{'file-one':'source-a'})).snapshot}
 
 test('preparation, start, draft and acceptance preserve complete workbook and audit trail',async()=>{
@@ -130,7 +130,7 @@ test('unchanged membership preserves preparation; unmatched objects remain visib
  const prep={...preparation(),items:p.assignments.map(a=>({mappingId:a.id,included:true,copies:a.copies,planned:a.copies}))};
  s=(await f.store.commit(s.revision,randomUUID(),{type:'save-preparation',plateId:p.id,preparation:prep},{'file-one':'source-a'})).snapshot;
  s=(await f.store.commit(s.revision,randomUUID(),command,{'file-one':'source-a'})).snapshot;
- assert.ok(s.plates.find(p=>p.fileId==='file-one')!.preparation?.layoutConfirmed);
+ assert.ok(s.plates.find(p=>p.fileId==='file-one')!.preparation);
  s=(await f.store.commit(s.revision,randomUUID(),{...command,sourceHash:'changed',plates:[{number:1,name:'Unknown-only plate',assignments:[],unmapped:['New object.stl']}]},{'file-one':'changed'})).snapshot;
  const unknown=s.plates.find(p=>p.fileId==='file-one')!;assert.ok(unknown);assert.equal(unknown.assignments.length,0);assert.deepEqual(unknown.unmappedObjects,['New object.stl']);assert.equal(unknown.preparation,undefined);
 });

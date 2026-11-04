@@ -18,7 +18,6 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
  const rev=db.prepare('SELECT revision,updated_at FROM build_revisions WHERE build_id=?').get(buildId) as DBRow|undefined;
  if(!rev)throw Error('Build revision missing');
  const compatibility=db.prepare('SELECT * FROM runtime_compatibility WHERE build_id=?').get(buildId) as DBRow|undefined;
- const savedPreparations=compatibility?JSON.parse(str(compatibility.preparations_json)):{};
  const parts:Part[]=rows(db,'SELECT * FROM print_parts WHERE build_id=? ORDER BY id',buildId).map(p=>({
    id:str(p.id),name:str(p.name),section:str(p.section),source:str(p.source),material:str(p.material),
    required:opt(p.required_qty),opening:Number(p.opening_qty),accepted:0,installed:Number(p.installed_qty),notes:str(p.notes)
@@ -34,8 +33,6 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
   const preparation:Preparation|undefined=prep?{
    runs:Number(prep.runs),material:str(prep.material),profile:str(prep.profile),sourceHash:str(prep.source_hash),
    notes:str(prep.notes),savedAt:str(prep.saved_at),
-   // Compatibility shape until WP-03 removes the legacy attestation field.
-   layoutConfirmed:savedPreparations[id]?.layoutConfirmed===true,
    items:(db.prepare('SELECT * FROM preparation_items WHERE build_id=? AND plate_id=? ORDER BY mapping_id').all(buildId,id) as DBRow[])
      .map(i=>({mappingId:str(i.mapping_id),included:!!i.included,copies:opt(i.copies),planned:opt(i.planned_qty)}))
   }:undefined;

@@ -51,3 +51,10 @@
 .acquisition-sidebar .search{display:flex;flex-shrink:0}.acquisition-sidebar .acquisition-overview,.acquisition-sidebar .acquisition-filters,.acquisition-sidebar .acquisition-list-heading{flex-shrink:0}
 /* Purchasing has an always-visible search, independent of Printing's collapsed mobile tree. */
 .acquisition-workspace .acquisition-sidebar>.search{display:flex}
+
+/* Phase 3: existing instruments and compact, functional Printing layout; visual polish is deferred. */
+.printing-gauges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.printing-gauge{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:4px 5px 9px;min-width:0}.printing-gauge .instrument svg{width:min(100%,160px)}.printing-gauge .instrument figcaption strong{font-size:12px}.printing-gauge .instrument figcaption span{font-size:11px;margin:3px 0 0}.vehicle-section-row>span:first-child{gap:7px;min-width:0}.vehicle-section-row small{flex-basis:auto;margin:0;font-size:11px}.preparation{padding:13px;margin-top:14px}.preparation .form-grid{gap:12px}.preparation h2{margin-top:0}.preparation textarea{min-height:60px}.preparation .table-wrap{margin-block:10px}.plate-information dl{row-gap:4px}.plate-top{gap:16px}.section-heading{margin-top:18px}
+@media(max-width:1000px){.printing-gauges{grid-template-columns:repeat(2,minmax(0,1fr))}.printing-gauge .instrument svg{width:145px}.vehicle-section-row{grid-template-columns:minmax(0,1fr) 100px 155px 18px}}
+@media(max-width:800px){.printing-gauges{gap:7px}.printing-gauge .instrument svg{width:min(100%,145px)}.vehicle-section-row{grid-template-columns:minmax(0,1fr) 18px}.vehicle-section-row small{flex-basis:auto}.vehicle-section-row>span:first-child{flex-wrap:wrap}.plate-top{gap:12px}}
+
+.quantity-saved{display:block;color:var(--green);font-size:11px}

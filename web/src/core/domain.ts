@@ -1,4 +1,5 @@
 import {createHash,randomUUID} from 'node:crypto';
+import {preparationIssue,preparationData} from './preparation';
 import {validateEdit} from './acquisition';
 import type {BuildConfig,Command,Snapshot,Job,JobItem,ResultInput} from './types';
 export class DomainError extends Error {constructor(message:string,public status=422){super(message)}}
@@ -51,18 +52,10 @@ export function applyCommand(original:Snapshot,command:Command,config:BuildConfi
   target=command.items.map(i=>i.partId).join(',');summary='Saved quantities for '+command.items.length+' part(s)';
  }else if(command.type==='save-preparation'){
   const plate=s.plates.find(p=>p.id===command.plateId);requireThat(plate,'Plate not found.');const prep=command.preparation;
-  requireThat(integer(prep.runs,1)&&prep.runs<=100,'Plate runs must be between 1 and 100.');
-  requireThat(config.workflow.materials.includes(prep.material),'Choose a configured material.');const file=s.files.find(f=>f.id===plate.fileId)!;requireThat(file.material.includes('TPU')===prep.material.includes('TPU'),'Choose a material compatible with this project: '+file.material+'.');requireThat(typeof prep.profile==='string'&&prep.profile.trim(),'Enter a print profile.');
-  requireThat(typeof prep.layoutConfirmed==='boolean','Confirm whether the layout was reviewed.');
-  requireThat(sourceHashes[plate.fileId]&&prep.sourceHash===sourceHashes[plate.fileId],'The source file changed or cannot be read. Refresh it before saving.');
-  requireThat(Array.isArray(prep.items)&&prep.items.length===plate.assignments.length,'The plate membership changed. Refresh it.');
-  requireThat(new Set(prep.items.map(i=>i.mappingId)).size===prep.items.length,'Duplicate preparation items.');
-  for(const a of plate.assignments){const item=prep.items.find(i=>i.mappingId===a.id);requireThat(item,'A mapped part is missing.');requireThat(typeof item.included==='boolean','Invalid include flag.');requireThat(item.copies===null||integer(item.copies),'Copies must be whole numbers.');requireThat(item.planned===null||integer(item.planned),'Planned quantity must be a whole number.');if(item.included&&prep.layoutConfirmed)requireThat(integer(item.copies,1)&&integer(item.planned,1),'Confirm enabled copies and planned quantities for included parts.');}
-  plate.preparation={...prep,notes:String(prep.notes||'').slice(0,4000),profile:prep.profile.slice(0,200),savedAt:now};target=plate.id;summary='Saved plate preparation';
+  const issue=preparationIssue(plate,prep,s.files.find(f=>f.id===plate.fileId),config.workflow.materials,sourceHashes[plate.fileId]);requireThat(!issue,issue||'Invalid preparation.');
+  plate.preparation={...preparationData(prep),notes:String(prep.notes||'').slice(0,4000),profile:prep.profile.slice(0,200),savedAt:now};target=plate.id;summary='Saved plate preparation';
  }else if(command.type==='start'){
-  const plate=s.plates.find(p=>p.id===command.plateId);requireThat(plate,'Plate not found.');const prep=plate.preparation;requireThat(prep?.layoutConfirmed,'Save a confirmed layout before starting.');requireThat(!plate.unmappedObjects?.length,'Match the unknown plate objects before starting.');
-  requireThat(sourceHashes[plate.fileId]&&prep.sourceHash===sourceHashes[plate.fileId],'The saved preparation is stale. Review the changed source file.');
-  requireThat(integer(prep.runs,1)&&config.workflow.materials.includes(prep.material),'Review the saved runs and material.');const sourceFile=s.files.find(f=>f.id===plate.fileId)!;requireThat(sourceFile.material.includes('TPU')===prep.material.includes('TPU'),'The saved material is incompatible with this file.');
+  const plate=s.plates.find(p=>p.id===command.plateId);requireThat(plate,'Plate not found.');const prep=plate.preparation;const issue=preparationIssue(plate,prep,s.files.find(f=>f.id===plate.fileId),config.workflow.materials,sourceHashes[plate.fileId],true);requireThat(!issue,issue||'Invalid preparation.');requireThat(prep,'Save a preparation before starting.');
   requireThat(s.jobs.filter(j=>j.status==='Printing').length<config.workflow.maxPrintingJobs,'The printer already has an active tracked print.');
   const file=s.files.find(f=>f.id===plate.fileId)!;const included=prep.items.filter(i=>i.included);requireThat(included.length,'Include at least one part.');
   const seen=new Set<string>();const items:JobItem[]=included.map(i=>{const a=plate.assignments.find(a=>a.id===i.mappingId);requireThat(a,'Mapping no longer exists.');requireThat(!seen.has(a.partId),'Combine duplicate part mappings before starting.');seen.add(a.partId);requireThat(integer(i.planned,1),'Each included part needs a positive planned quantity.');return {partId:a.partId,mappingId:a.id,fileId:file.id,fileRevision:file.revision,filename:file.filename,plateNumber:plate.number,plateName:plate.name,runs:prep.runs,planned:i.planned,accepted:null,rejected:null,profile:prep.profile,material:prep.material,notes:prep.notes};});
