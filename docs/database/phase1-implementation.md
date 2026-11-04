@@ -1,7 +1,7 @@
 # Phase 1 — SQLite Foundation Implementation Record
-Date: 2026-11-03
+Date: 2026-11-03 (initial slice); accepted 2026-11-04
 Branch: Refinement_v2
-State: First implementation slice committed, **not yet accepted or deployed**.
+State: **Accepted and deployed.** See [November 4 acceptance and rollback evidence](phase1-acceptance-2026-11-04.md). The initial-slice notes below are retained as implementation history.
 
 ## Files delivered
 - `web/src/server/sqlite-schema.mjs`: schema v1, normalized tables, relational constraints and indexes. Uses SQLite foreign keys and integer quantity checks.
@@ -40,7 +40,7 @@ The importer currently migrates one build into a newly created SQLite file. The 
 - Legacy Purchasing orders/ledgers archived as separate JSON, not imported into the new active acquisition schema.
 - Ordered checkbox intentionally starts false for ambiguous legacy orders; date, vendor, on-hand, link, and designer fields preserved where possible; exceptions/warnings reported.
 
-## Known limitations / acceptance blockers
+## Initial limitations (historical; superseded by November 4 acceptance)
 1. **GitHub Actions has executed the test suite, TypeScript check and production build successfully** on Node 24 (run 41680928760). Subsequent read-adapter commit has its own validation run; this does not substitute for Pi/actual-workbook testing. GitHub API access cannot directly run the Pi's Node runtime or read its ignored workbook.
 2. **Actual production workbook clone not yet verified.** Migration is not proven until row-level comparison passes against that specific file. Unknown/malformed legacy records may reveal additional compatibility work.
 3. **SQLite runtime adapter is not yet wired.** Current `createStore`, registry type restrictions and API routes are Excel-only; do not change registry to `kind=sqlite` yet.
@@ -50,7 +50,7 @@ The importer currently migrates one build into a newly created SQLite file. The 
 7. Existing workbook snapshot `layoutConfirmed` is intentionally not migrated as an attestation. WP-03 must adapt validation before SQLite is used to start jobs.
 8. Backup/restore implementation, multi-build app read/write adapter, and controlled live cutover remain incomplete.
 
-## Next engineering work
+## Initial next steps (historical)
 - Run tests/typecheck with actual repo dependencies; repair failures.
 - Obtain read-only copy of current production workbook and run migration, review all warnings/differences.
 - Implement full transactional SQLite `DataStore` load/commit and persistent request-id replay while preserving domain semantics; do not switch production before acceptance.
@@ -59,3 +59,14 @@ The importer currently migrates one build into a newly created SQLite file. The 
 
 ## Acceptance gate
 Do not declare Phase 1 complete or replace Excel until migration tests on real workbook, data comparisons, Pi smoke test, SQLite adapter regression tests, and restore exercise all pass. Maintain the approved branch and separate, backed-up production.
+
+
+## Runtime integration — 2026-11-04
+
+Schema v2 adds migration provenance and a transitional compatibility payload. Printing stays normalized. The existing Purchasing UI, item aliases, order reconciliation, inventory and ledger remain fully preserved and writable in SQLite until WP-02 replaces that workflow. The normalized `purchase_parts` table is the future simplified migration projection, not the active Phase 1 Purchasing source. No order flags are inferred during cutover. Original preparation flags are retained in compatibility data until WP-03 removes that UI field; an unconfirmed preparation is never promoted to confirmed by the reader.
+
+`data-store.ts` routes the registry to Excel or SQLite. SQLite reads use a single read transaction; writes use `BEGIN IMMEDIATE`, durable request replay, revision checks, atomic audit/projection updates and shared-printer checks inside that transaction. The pre-existing filesystem printer lock remains for mixed-adapter registries. Runtime schema changes are refused; migration is offline.
+
+Every save attempt first makes a verified SQLite online backup (including WAL contents). This initially retains all versions rather than pruning unqualified production backups. Backup failure blocks writes. Storage usage should be reviewed before adding retention. `validate-sqlite.ts` compares every business field against the embedded source snapshot and tests restore, disposable writes, request replay and stale-revision rejection without writing to its source database.
+
+The deployment discovered live Purchasing fixes from `3eb89c5` and `9d4c720`; both are carried into Refinement_v2. Machine-specific repaired object mappings are preserved on the Pi. No credentials, production snapshots or generated assets are committed.

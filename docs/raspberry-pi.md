@@ -1,5 +1,12 @@
 # Raspberry Pi 3 deployment
 
+## Current production datastore — November 4, 2026
+
+Phase 1 of Refinement_v2 is deployed. The authoritative tracker is now **SQLite** at `/home/preston/build-desk/local-data/build-desk-20261104T163820Z.db`, selected by the existing private `local-data/builds.pi.json` registry (`kind: sqlite`, `schema: build-desk-v2`). The original `local-data/kitten-745/Master Tracker.xlsx` remains unchanged and read-only. Existing workbook-specific instructions below describe the earlier Excel deployment. Do not point Excel tools at the SQLite path.
+
+SSH, the user service, Node installation, direct LAN address and NAS mount are unchanged. All tests, migration comparisons, ARM64 build, isolated API writes and backup/restore passed before the controlled cutover. See the [Phase 1 acceptance and rollback record](database/phase1-acceptance-2026-11-04.md) for counts, backup paths, exact checks and rollback safeguards. Current Purchasing behavior and history are preserved pending its separate refinement work package.
+
+
 This private continuation of `sbirdranch/build-desk` preserves its Git history and the Windows checkout's source changes as of October 20, 2026. The Windows checkout remains independent. `origin` is `sbirdranch/build-desk-pi`; `upstream` is `sbirdranch/build-desk`. Git is not a backup of the workbook, print history, models, generated assets or credentials.
 
 ## Target and current verification
@@ -97,7 +104,8 @@ The actual Pi uses a user-owned installation because sudo requires local passwor
 | Application | `/home/preston/build-desk` |
 | Node.js 24.22.0 ARM64 | `/home/preston/.local/node/bin/node` |
 | Runtime registry | `/home/preston/build-desk/local-data/builds.pi.json` |
-| Active production tracker | `/home/preston/build-desk/local-data/kitten-745/Master Tracker.xlsx` |
+| Active production tracker | `/home/preston/build-desk/local-data/build-desk-20261104T163820Z.db` |
+| Preserved pre-SQLite tracker | `/home/preston/build-desk/local-data/kitten-745/Master Tracker.xlsx` (read-only) |
 | Workbook backups/original export | `/home/preston/build-desk/local-data/kitten-745/backups` |
 | Generated assets | `/home/preston/build-desk/assets/generated` |
 | Existing NAS model files | `/mnt/builddesk/BambuProjects/RC_DumpTruck` |
