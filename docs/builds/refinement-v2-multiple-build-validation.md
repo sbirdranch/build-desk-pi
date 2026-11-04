@@ -2,7 +2,7 @@
 Version: 0.2 (three-instance validation plan)
 Date: 2026-11-03
 Project: Build Desk Pi — Refinement_v2
-Status: Planning; second model dataset not yet identified. No production actions authorized.
+Status: Phase 4 pending. On November 4 the user reported a duplicate haul-truck project and a loader project ready for the second/third vehicle tests. Their locations and contents have not yet been inspected; do not treat them as validated datasets. Phase 3 remains the current work package.
 
 ## Objective
 Verify the existing multiple-build capability with two additional independent build instances while retaining the current Kitten 745 build and its data unchanged. This is validation and targeted repair, not permission to replace the build architecture wholesale.

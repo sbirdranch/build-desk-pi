@@ -2,7 +2,7 @@
 Version: 0.1 (initial planning baseline)
 Date: 2026-11-03
 Project: Build Desk Pi — Refinement_v2
-Status: User-agreed changes; documentation only, not implementation authorization.
+Status: Implemented and deployed under the user authorization of November 4, 2026. Broader style feedback/polish is deferred. See phase3-acceptance-2026-11-04.md for validation and rollback evidence.
 
 ## Intent
 Preserve the existing Printing core workflow, tree/navigation, plate preparation, print-job lifecycle and inspection/results. Make three targeted improvements: eliminate redundant layout-review acknowledgement controls, replace overview progress bars with realistic mechanical gauges, and reduce vertical space and scrolling.

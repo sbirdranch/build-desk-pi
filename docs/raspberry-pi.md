@@ -2,7 +2,7 @@
 
 ## Current production datastore — November 4, 2026
 
-Phases 1 and 2 of Refinement_v2 are deployed. The authoritative tracker is now **SQLite** at `/home/preston/build-desk/local-data/build-desk-refinement2-20261104T175420Z.db`, selected by the existing private `local-data/builds.pi.json` registry (`kind: sqlite`, `schema: build-desk-v2`). The original `local-data/kitten-745/Master Tracker.xlsx` remains unchanged and read-only. Existing workbook-specific instructions below describe the earlier Excel deployment. Do not point Excel tools at the SQLite path.
+Phases 1, 2 and 3 of Refinement_v2 are deployed. The authoritative tracker is now **SQLite** at `/home/preston/build-desk/local-data/build-desk-refinement2-20261104T175420Z.db`, selected by the existing private `local-data/builds.pi.json` registry (`kind: sqlite`, `schema: build-desk-v2`). The original `local-data/kitten-745/Master Tracker.xlsx` remains unchanged and read-only. Existing workbook-specific instructions below describe the earlier Excel deployment. Do not point Excel tools at the SQLite path.
 
 SSH, the user service, Node installation, direct LAN address and NAS mount are unchanged. All tests, migration comparisons, ARM64 build, isolated API writes and backup/restore passed before the controlled cutover. See the [Phase 1 acceptance and rollback record](database/phase1-acceptance-2026-11-04.md) for counts, backup paths, exact checks and rollback safeguards. Purchasing now uses the simplified manual parts tracker, with legacy orders archived. See the [WP-02 deployment and rollback record](purchasing/refinement-v2-acceptance-2026-11-04.md) for current validation and backup paths.
 
@@ -20,6 +20,10 @@ The actual Pi subsequently passed 49 synthetic tests plus the separately selecte
 Use Raspberry Pi OS Lite **64-bit**, Node.js **22 or 24**, and an SSH-enabled Pi 3. Confirm `uname -m` reports `aarch64` and `node -p process.arch` reports `arm64`. Next's native dependencies must be installed on Linux ARM64; do not copy Windows `node_modules` or `web/.next` to the Pi. Pi 3 B/B+ have limited memory; a 3 A+ has less memory and needs separate capacity testing. This 3 B+ has passed the checks above; an actual reboot and extended load qualification remain pending.
 
 The app continues to use ExcelJS to read/write `.xlsx`; Microsoft Excel is not required on the Pi. Keep the active workbook on local Pi storage, not an SMB share. Only one host may own the production tracker. Model rendering and slicing are separate from production tracking.
+
+## Printing refinement — current code release
+
+Phase 3 removes layout acknowledgement controls while retaining direct preparation validation, reuses the existing overview gauges, and compacts section rows. The database was left in place and every application table fingerprint matched before/after deployment. See the [Phase 3 acceptance and rollback record](printing/phase3-acceptance-2026-11-04.md). Broad styling polish is deferred.
 
 ## Alternative system-wide installation
 
