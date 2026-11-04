@@ -17,7 +17,7 @@ Current schema-3 SQLite database:
 | Printed parts | 101 | 101 |
 | Files / plates | 7 / 26 | 7 / 24 |
 | Jobs / accepted units | 29 / 116 | 0 / 0 |
-| Preparations | 13 | 0 |
+| Preparations | 14 | 0 |
 | Purchasing entries | 51 | 50 |
 | Production revision | 1, preserved | 0, fresh |
 
