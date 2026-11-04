@@ -31,7 +31,7 @@ export default function PrinterStatus({buildId,initial,mobile,recordedAt,notice=
    <div className={'dock-notice'+(noticeError?' error':'')} role={noticeError?'alert':'status'}>
     {notice&&<><span className="dock-message" title={notice}>{notice}</span>{!noticeError&&<small aria-hidden="true">{noticeSeconds}s</small>}<button aria-label="Dismiss message" onClick={onDismiss}>✕</button></>}
    </div>
-   <div className="tracker-reference"><span title="Last saved time of the local tracker workbook">Local Excel workbook · saved {new Date(recordedAt).toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'})}</span><button disabled={reloadDisabled} onClick={onReload}><RefreshCw size={12}/>Reload Tracking Data</button></div>
+   <div className="tracker-reference"><span title="Last saved time of the local tracker">Local tracker · saved {new Date(recordedAt).toLocaleString(undefined,{dateStyle:'short',timeStyle:'short'})}</span><button disabled={reloadDisabled} onClick={onReload}><RefreshCw size={12}/>Reload Tracking Data</button></div>
   </div>
  </footer>;
 }

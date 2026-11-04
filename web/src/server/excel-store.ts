@@ -1,5 +1,5 @@
 import ExcelJS from 'exceljs';
-import {decodePurchasing,persistPurchasing} from './purchasing-store';
+import {decodePurchasing} from './purchasing-store';
 import {readFile,writeFile,copyFile,rename,unlink,mkdir,open,stat} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash,randomUUID} from 'node:crypto';
@@ -44,10 +44,6 @@ export function decode(wb:ExcelJS.Workbook,config:BuildConfig,revision:string,re
 function ownedSheet(wb:ExcelJS.Workbook,name:string,headers:string[]){let s=wb.getWorksheet(name);if(!s){s=wb.addWorksheet(name);s.addRow(headers);s.views=[{state:'frozen',ySplit:1}];s.getRow(1).font={bold:true};s.columns.forEach(c=>c.width=24);}return s;}
 function findRow(s:ExcelJS.Worksheet,id:string){let empty=0;for(let i=2;i<=s.rowCount;i++){const key=text(value(s.getCell(i,1).value));if(key===id)return i;if(!key&&!empty)empty=i;}return empty||Math.max(2,s.rowCount+1);}
 function persist(wb:ExcelJS.Workbook,before:Snapshot,after:Snapshot,requestId:string,command:Command,target:string,summary:string){
- if(command.type==='purchasing'||command.type==='purchase-review'){
-  persistPurchasing(wb,before.purchasing!,after.purchasing!);
-  ownedSheet(wb,sheets.audit,['Request ID','Timestamp UTC','Action','Target ID','Before state SHA-256','After state SHA-256','Summary','Actor']).addRow([requestId,new Date().toISOString(),command.type,target,stateHash(before),stateHash(after),summary,'Local desktop user']);return;
- }
  // Google exports share formulas across many blank rows. Expand every follower
  // before updating its master; otherwise unrelated rows can become invalid.
  const formulas:{cell:ExcelJS.Cell;formula:string;result:ExcelJS.CellFormulaValue['result']}[]=[];
@@ -99,6 +95,7 @@ export class ExcelStore implements DataStore{
  async read(){const file=workbookPath(this.config);const bytes=await readFile(file);const wb=new ExcelJS.Workbook();await wb.xlsx.load(bytes as never);return {file,bytes,wb,snapshot:decode(wb,this.config,hash(bytes),(await stat(file)).mtime.toISOString())};}
  async load(){return (await this.read()).snapshot}
  async commit(expected:string,requestId:string,command:Command,sourceHashes:Record<string,string|null>){
+  if(command.type==='save-acquisition')throw new DomainError('Purchasing requires the SQLite datastore.');
   if(!/^[a-zA-Z0-9-]{12,100}$/.test(requestId))throw new DomainError('Invalid request ID.');
   const file=workbookPath(this.config),lockFile=file+'.builddesk.lock';let lock;
   try{lock=await open(lockFile,'wx');await lock.writeFile(JSON.stringify({pid:process.pid,at:new Date().toISOString()}));}catch{throw new DomainError('Another save is in progress. Retry after it finishes.',409)}
@@ -111,7 +108,6 @@ export class ExcelStore implements DataStore{
    const output=Buffer.from(await wb.xlsx.writeBuffer());
    // Serialize completely before touching the authoritative file.
    const verify=new ExcelJS.Workbook();await verify.xlsx.load(output as never);const checked=decode(verify,this.config,hash(output),new Date().toISOString());
-   if((command.type==='purchasing'||command.type==='purchase-review')&&(checked.purchasing!.parts.length!==snapshot.purchasing!.parts.length||checked.purchasing!.items.length!==changed.state.purchasing!.items.length))throw Error('Purchasing verification failed before save.');
    if(checked.parts.length!==snapshot.parts.length||verify.worksheets.length<wb.worksheets.length)throw Error('Workbook verification failed before save.');
    if(hash(await readFile(file))!==hash(bytes))throw new DomainError('An outside edit occurred while saving. Refresh and retry.',409);
    const backupDir=path.join(path.dirname(file),'backups');await mkdir(backupDir,{recursive:true});await copyFile(file,path.join(backupDir,`${new Date().toISOString().replaceAll(':','-')}-${randomUUID().slice(0,8)}.xlsx`));

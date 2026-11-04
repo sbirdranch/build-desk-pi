@@ -5,6 +5,7 @@ import {mkdtemp,rm,readdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {activateAcquisition} from '../src/server/acquisition-migration';
 import {initializeSchema} from '../src/server/sqlite-schema.mjs';
 import {createStore} from '../src/server/data-store';
 import {backupSQLite} from '../src/server/sqlite-backup';
@@ -25,6 +26,7 @@ test('SQLite runtime: shared printer race, inspection, Purchasing, rollback and 
    const purchasing={parts:[{id:'buy',category:'Hardware',name:'Screw',specification:'M3',requirement:'6',needed:6,onHand:0,onOrder:0,toSource:6,supplier:'Shop',orderedDate:'',receivedDate:'',notes:'preserve full notes',link:'https://example.com',packSize:null,status:'Sourcing'}],items:[],ledger:[]};
    db.prepare('INSERT INTO runtime_compatibility VALUES(?,?,?,?)').run(id,JSON.stringify(purchasing),'[]','{}');
   }
+  db.exec('BEGIN IMMEDIATE');activateAcquisition(db);db.exec('COMMIT');
   const config=(id:string):BuildConfig=>({id,name:id,active:true,store:{kind:'sqlite',path:file,schema:'build-desk-v2'},assets:{root:'',catalog:''},models:{directory:''},printer:{id:'shared',name:'Printer'},workflow:{defaultProfile:'Standard',materials:['PETG'],maxPrintingJobs:1},modules:['printing','purchasing']});
   const truck=createStore(config('truck')),loader=createStore(config('loader'));
   const save=async(store:typeof truck,command:Command,hashes={})=>store.commit((await store.load()).revision,randomUUID(),command,hashes);
@@ -46,9 +48,9 @@ test('SQLite runtime: shared printer race, inspection, Purchasing, rollback and 
   assert.equal(complete.snapshot.parts[0].accepted,1);
   assert.equal((await winner.commit(s.revision,request,finish,{})).replayed,true);
   await assert.rejects(winner.commit(s.revision,randomUUID(),finish,{}),/changed since/);
-  await save(winner,{type:'purchasing',operation:{kind:'part',partId:'buy',needed:6,onHand:2,reason:'Counted stock'}});
-  assert.equal((await winner.load()).purchasing?.parts[0].onHand,2);
-  assert.equal((await loser.load()).purchasing?.parts[0].onHand,0);
+  await save(winner,{type:'save-acquisition',partId:'buy',fields:{onHand:2,ordered:false,vendor:'Shop',url:'https://example.com',orderedDate:'',notes:'updated'}});
+  assert.equal((await winner.load()).acquisition?.parts[0].onHand,2);
+  assert.equal((await loser.load()).acquisition?.parts[0].onHand,0);
   const before=await winner.load();
   db.exec("CREATE TRIGGER fail_commit BEFORE INSERT ON write_requests BEGIN SELECT RAISE(ABORT,'injected failure'); END;");
   await assert.rejects(save(winner,{type:'update-part',partId:'p',required:9,installed:0,notes:'must roll back'}),/injected failure/);

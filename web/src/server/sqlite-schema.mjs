@@ -1,6 +1,6 @@
 // SQLite schema for Build Desk v2. A new database starts at schema version 1.
 // This module intentionally has no runtime or Excel dependencies.
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -113,6 +113,10 @@ CREATE TABLE IF NOT EXISTS write_requests (
 CREATE TABLE IF NOT EXISTS runtime_compatibility (
  build_id TEXT PRIMARY KEY REFERENCES builds(id), purchasing_json TEXT NOT NULL,
  audit_json TEXT NOT NULL, preparations_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS purchasing_archives (
+ build_id TEXT PRIMARY KEY REFERENCES builds(id), archived_at TEXT NOT NULL,
+ source_sha256 TEXT NOT NULL, legacy_json TEXT NOT NULL, report_json TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS migration_sources (
  build_id TEXT PRIMARY KEY REFERENCES builds(id), source_sha256 TEXT NOT NULL,

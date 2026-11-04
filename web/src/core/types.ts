@@ -7,12 +7,11 @@ export type ModelFile={id:string;filename:string;revision:string;profile:string;
 export type JobItem={partId:string;mappingId:string;fileId:string;fileRevision:string;filename:string;plateNumber:number;plateName:string;runs:number;planned:number;accepted:number|null;rejected:number|null;profile:string;material:string;notes:string};
 export type Job={id:string;kind:'plate'|'manual';status:'Printing'|'Awaiting inspection'|'Completed'|'Cancelled';startedAt:string;finishedAt:string;items:JobItem[];draft?:{mappingId:string;accepted:number|null;rejected:number|null}[]};
 export type Audit={requestId:string;at:string;action:string;target:string;summary:string;before:string;after:string};
-export type Snapshot={build:{id:string;name:string};revision:string;recordedAt:string;parts:Part[];files:ModelFile[];plates:Plate[];jobs:Job[];audit:Audit[];purchasing?:import('./purchasing').Purchasing};
+export type Snapshot={build:{id:string;name:string};revision:string;recordedAt:string;parts:Part[];files:ModelFile[];plates:Plate[];jobs:Job[];audit:Audit[];acquisition?:import('./acquisition').Acquisition;purchasing?:import('./purchasing').Purchasing};
 export type ResultInput={mappingId:string;accepted:number|null;rejected:number|null};
 export type ImportedPlate={number:number;name:string;assignments:{partId:string;copies:number|null;split?:boolean}[];unmapped:string[]};
 export type Command=
- | import('./purchasing').PurchasingCommand
- | import('./purchasing').PurchaseReviewCommand
+ | import('./acquisition').AcquisitionCommand
  | {type:'reconcile-file';fileId:string;sourceHash:string;plates:ImportedPlate[];registerPlates?:number[]}
  | {type:'update-parts';items:{partId:string;required:number|null;installed:number}[]}
  | {type:'save-preparation';plateId:string;preparation:Preparation}

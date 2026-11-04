@@ -1,5 +1,6 @@
 // Transactional runtime store; Phase 1 retains current Purchasing behavior until WP-02.
 import {DatabaseSync} from 'node:sqlite';
+import {vendorKey} from '../core/acquisition';
 import {stateHash} from '../core/domain';
 import {existsSync} from 'node:fs';
 import {backupSQLite} from './sqlite-backup';
@@ -75,8 +76,13 @@ export class SQLiteStore {
      if(occupied)throw new DomainError('This printer already has a tracked print in '+occupied.name+'.',409);
     }
     const changed=applyCommand(current,command,this.config,sourceHashes);
-    if(command.type!=='purchasing'&&command.type!=='purchase-review')replacePrinting(db,this.config.id,changed.state);
-    changed.state.audit.push({requestId,at:new Date().toISOString(),action:command.type,target:changed.target,summary:changed.summary,before:stateHash(current),after:stateHash(changed.state)});
+    if(command.type==='save-acquisition'){
+     const p=changed.state.acquisition!.parts.find(p=>p.id===command.partId)!;
+     let vendorId:number|null=null;
+     if(p.vendor){db.prepare('INSERT OR IGNORE INTO vendors(display_name,normalized_name) VALUES(?,?)').run(p.vendor,vendorKey(p.vendor));vendorId=Number(db.prepare('SELECT id FROM vendors WHERE normalized_name=?').get(vendorKey(p.vendor))!.id);}
+     db.prepare('UPDATE purchase_parts SET on_hand_qty=?,ordered=?,vendor_id=?,product_url=?,ordered_date=?,notes=? WHERE build_id=? AND id=?').run(p.onHand,Number(p.ordered),vendorId,p.url,p.orderedDate||null,p.notes,this.config.id,p.id);
+    }else replacePrinting(db,this.config.id,changed.state);
+    if(command.type!=='save-acquisition')changed.state.audit.push({requestId,at:new Date().toISOString(),action:command.type,target:changed.target,summary:changed.summary,before:stateHash(current),after:stateHash(changed.state)});
     db.prepare('INSERT INTO runtime_compatibility VALUES(?,?,?,?) ON CONFLICT(build_id) DO UPDATE SET purchasing_json=excluded.purchasing_json,audit_json=excluded.audit_json,preparations_json=excluded.preparations_json').run(this.config.id,JSON.stringify(changed.state.purchasing||{parts:[],items:[],ledger:[]}),JSON.stringify(changed.state.audit),JSON.stringify(Object.fromEntries(changed.state.plates.filter(p=>p.preparation).map(p=>[p.id,p.preparation]))));
     const now=new Date().toISOString(),revision=Number(expected)+1;
     db.prepare('UPDATE build_revisions SET revision=?,updated_at=? WHERE build_id=?').run(revision,now,this.config.id);

@@ -2,7 +2,7 @@
 Version: 0.6 (planning baseline)
 Date: 2026-11-03
 Project: Build Desk Pi — Refinement_v2
-Status: Agreed requirements plus explicitly open decisions; no implementation authorized by this document.
+Status: Implemented under the user authorization of November 4, 2026; UI review pending. See refinement-v2-implementation.md for resolved details and deployment evidence.
 
 ## Purpose and scope
 Replace the current elaborate order management and email-driven update system with a simple, manually maintained parts-acquisition tracker for model truck builds. Preserve Build Desk's existing palette, theme, typography, overall two-pane workspace and navigation; apply a restrained mechanical/industrial/steampunk treatment chiefly to the overview's circular instrument gauges. Do not create a separate enterprise purchasing application.

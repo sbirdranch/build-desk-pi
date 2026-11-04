@@ -1,10 +1,10 @@
 import {createHash,randomUUID} from 'node:crypto';
-import {applyPurchase} from './purchasing';
+import {validateEdit} from './acquisition';
 import type {BuildConfig,Command,Snapshot,Job,JobItem,ResultInput} from './types';
 export class DomainError extends Error {constructor(message:string,public status=422){super(message)}}
 export const integer=(n:unknown,min=0):n is number=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=min;
 export function requireThat(ok:unknown,message:string):asserts ok {if(!ok)throw new DomainError(message)}
-export function stateHash(s:Snapshot){return createHash('sha256').update(JSON.stringify({parts:s.parts,files:s.files,plates:s.plates,jobs:s.jobs,purchasing:s.purchasing})).digest('hex')}
+export function stateHash(s:Snapshot){return createHash('sha256').update(JSON.stringify({parts:s.parts,files:s.files,plates:s.plates,jobs:s.jobs,purchasing:s.purchasing,acquisition:s.acquisition})).digest('hex')}
 export function status(part:{required:number|null;accepted:number}){return part.required===null?'unconfirmed':part.accepted>=part.required?'completed':part.accepted>0?'partial':'not-printed'}
 export function recalculate(s:Snapshot){for(const p of s.parts)p.accepted=p.opening+s.jobs.filter(j=>j.status==='Completed').flatMap(j=>j.items).filter(i=>i.partId===p.id&&integer(i.accepted)&&integer(i.rejected)&&(i.accepted??0)+(i.rejected??0)===i.planned).reduce((n,i)=>n+i.accepted!,0)}
 function validateResults(job:Job,results:ResultInput[],complete:boolean){
@@ -19,9 +19,12 @@ function validateResults(job:Job,results:ResultInput[],complete:boolean){
 export function applyCommand(original:Snapshot,command:Command,config:BuildConfig,sourceHashes:Record<string,string|null>,now=new Date().toISOString()):{state:Snapshot;target:string;summary:string}{
  const s=structuredClone(original);let target='',summary='';
  requireThat(command&&typeof command.type==='string','Choose a valid action.');
- if(command.type==='purchase-review'){requireThat(config.active&&s.purchasing,'Purchasing is read-only or unavailable.');const p=s.purchasing;requireThat(command.eventIds.length>0&&!command.eventIds.some(id=>p.ledger.some(e=>e.eventIds.includes(id))),'These events have already been resolved. Refresh the review.');try{if(!command.dismiss)s.purchasing=applyPurchase(p,{kind:'order',items:command.items},randomUUID(),now);}catch(e){throw new DomainError((e as Error).message);}const current=s.purchasing!;if(!command.dismiss){for(const input of command.items){const item=current.items.find(i=>i.id===input.id)!;item.sources=Array.from(new Set([...item.sources,...input.sources]));item.eventAt=input.eventAt;item.sourceItemId=input.sourceItemId;item.sourceAliases=input.sourceAliases;}}
- current.ledger.push({id:randomUUID(),at:now,kind:command.dismiss?'dismissed':'applied',target:command.items[0]?.orderId||'',reason:command.dismiss?'Dismissed source events':'Approved source events',before:command.dismiss?null:p.items,after:command.dismiss?null:command.items,eventIds:command.eventIds,sourceIds:command.sourceIds,files:command.files});return {state:s,target:command.eventIds.join(','),summary:command.dismiss?'Dismissed order updates':'Applied order updates'};}
- if(command.type==='purchasing'){requireThat(config.active,'Archived builds are read-only.');requireThat(s.purchasing,'Purchasing data unavailable.');try{s.purchasing=applyPurchase(s.purchasing,command.operation,randomUUID(),now);}catch(e){throw new DomainError((e as Error).message);}return {state:s,target:s.purchasing.ledger.at(-1)!.target,summary:'Saved purchasing '+command.operation.kind};}
+ if(command.type==='save-acquisition'){
+  requireThat(config.active&&s.acquisition,'Purchasing is read-only or unavailable.');
+  const part=s.acquisition.parts.find(p=>p.id===command.partId);requireThat(part,'Part not found.');
+  try{Object.assign(part,validateEdit(command.fields));}catch(e){throw new DomainError((e as Error).message);}
+  return {state:s,target:part.id,summary:'Saved purchasing part'};
+ }
  if(command.type==='reconcile-file'){
   const file=s.files.find(f=>f.id===command.fileId);requireThat(file,'File not found.');
   requireThat(sourceHashes[file.id]&&sourceHashes[file.id]===command.sourceHash,'The 3MF changed during refresh. Save it and refresh again.');

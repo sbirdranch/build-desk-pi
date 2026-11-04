@@ -2,6 +2,7 @@
 // No runtime registry changes. A complete transactional write adapter follows separately.
 import type {DatabaseSync} from 'node:sqlite';
 import type {Snapshot,Part,ModelFile,Plate,Job,JobItem,Preparation} from '../core/types';
+import type {AcquisitionPart} from '../core/acquisition';
 import type {PurchasePart} from '../core/purchasing';
 import {recalculate} from '../core/domain';
 
@@ -59,8 +60,11 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
   onOrder:null,toSource:null,supplier:str(p.vendor),orderedDate:str(p.ordered_date),receivedDate:'',notes:str(p.notes),link:str(p.product_url),packSize:null,
   status:p.required_qty==null||p.on_hand_qty==null?'Confirm quantity':Number(p.on_hand_qty)>=Number(p.required_qty)?'On hand':'Need to source'
  }));
+ const simplified=!!db.prepare('SELECT build_id FROM purchasing_archives WHERE build_id=?').get(buildId);
+ const acquisitionParts:AcquisitionPart[]=(db.prepare('SELECT p.*,v.display_name vendor FROM purchase_parts p LEFT JOIN vendors v ON v.id=p.vendor_id WHERE p.build_id=? ORDER BY p.id').all(buildId) as DBRow[]).map(p=>({id:str(p.id),category:str(p.category),description:str(p.description),specification:str(p.specification),requirement:str(p.designer_requirement),required:opt(p.required_qty),onHand:opt(p.on_hand_qty),ordered:!!p.ordered,vendor:str(p.vendor),url:str(p.product_url),orderedDate:str(p.ordered_date),notes:str(p.notes)}));
+ const acquisition={parts:acquisitionParts,vendors:(db.prepare('SELECT display_name FROM vendors ORDER BY normalized_name').all() as DBRow[]).map(v=>str(v.display_name))};
  const snapshot:Snapshot={build:{id:buildId,name:str(build.name)},revision:String(rev.revision),recordedAt:str(rev.updated_at),
-  parts,files,plates,jobs,audit:compatibility?JSON.parse(str(compatibility.audit_json)):[],purchasing:compatibility?JSON.parse(str(compatibility.purchasing_json)):{parts:purchaseParts,items:[],ledger:[]}};
+  parts,files,plates,jobs,audit:compatibility?JSON.parse(str(compatibility.audit_json)):[],...(simplified?{acquisition}:{purchasing:compatibility?JSON.parse(str(compatibility.purchasing_json)):{parts:purchaseParts,items:[],ledger:[]}})};
  recalculate(snapshot);
  return snapshot;
 }

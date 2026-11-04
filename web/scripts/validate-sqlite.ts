@@ -32,8 +32,6 @@ try{
   const request=randomUUID();const saved=await copy.commit('0',request,command,{});
   assert.equal(saved.snapshot.revision,'1');assert.equal((await copy.commit('0',request,command,{})).replayed,true);
   await assert.rejects(copy.commit('0',randomUUID(),command,{}),/changed since/);
-  const p=before.purchasing?.parts[0];
-  if(p)await copy.commit('1',randomUUID(),{type:'purchasing',operation:{kind:'part',partId:p.id,needed:p.needed,onHand:p.onHand,reason:'Disposable restore acceptance'}},{});
   const second=await backupSQLite(restored,path.join(dir,id+'-second.db'));
   assertSnapshotsEqual(await copy.load(),await new SQLiteStore(config,second).load());
   assertSnapshotsEqual(before,await store.load());

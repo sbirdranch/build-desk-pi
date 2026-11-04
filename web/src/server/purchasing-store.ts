@@ -14,19 +14,3 @@ export function decodePurchasing(w:ExcelJS.Workbook):Purchasing{
  const p={parts,items,ledger};recalculatePurchasing(p);return p;
 }
 function owned(w:ExcelJS.Workbook,name:string,headers:string[]){let s=w.getWorksheet(name);if(!s){s=w.addWorksheet(name);s.addRow(headers);s.views=[{state:'frozen',ySplit:1}];s.getRow(1).font={bold:true};s.columns.forEach(c=>c.width=26);}return s;}
-export function persistPurchasing(w:ExcelJS.Workbook,before:Purchasing,after:Purchasing){
- // Only expand formulas on purchased tabs; printing cells remain byte-for-byte semantic equivalents.
- for(const name of ['Parts Checklist','Order Log']){const s=w.getWorksheet(name);const f:{c:ExcelJS.Cell;formula:string;result:ExcelJS.CellFormulaValue['result']}[]=[];s?.eachRow(r=>r.eachCell(c=>{if(c.type===ExcelJS.ValueType.Formula&&c.formula)f.push({c,formula:c.formula,result:c.result});}));for(const x of f)x.c.value={formula:x.formula,result:x.result};}
- const parts=w.getWorksheet('Parts Checklist'),orders=w.getWorksheet('Order Log');if(!parts||!orders)throw Error('Purchasing requires Parts Checklist and Order Log.');
- orders.getCell(1,17).value='Build Desk Item ID';
- const meta=owned(w,metaName,['Item ID','Order Log row','Item JSON (schema 1)']),ledger=owned(w,ledgerName,['Entry ID','Ledger JSON (schema 1)']);
- const appendLedger=(entry:unknown,id:string)=>{const json=JSON.stringify(entry);for(let i=0;i<json.length;i+=30000)ledger.addRow([id,json.slice(i,i+30000)]);};
- if(!before.ledger.length){appendLedger({id:'migration-v1',at:new Date().toISOString(),kind:'order',target:'migration',reason:'Opening inventory and preexisting receipts preserved; legacy quantities use the existing component-unit convention.',before:{parts:before.parts,items:before.items},after:null,eventIds:[],sourceIds:[],files:[]},'migration-v1');}
- meta.eachRow((row,n)=>{if(n>1)row.values=[];});let metaNext=2;
- let next=2;orders.eachRow((r,n)=>{if(n>1&&value(r.getCell(1)))next=Math.max(next,n+1);});
- for(const item of after.items){if(!item.row)item.row=next++;const old=before.items.find(i=>i.id===item.id);if(JSON.stringify(old)!==JSON.stringify(item)){const r=orders.getRow(item.row);const fields:Record<number,unknown>={1:item.orderId,2:item.partId,3:item.supplier,4:item.seller,5:item.date,6:item.quantity,7:item.unitPrice,8:item.lineTotal,9:item.shipping,10:item.tax,11:item.total,12:item.receivedDate,13:item.received,14:item.link,15:item.notes};for(const [col,v] of Object.entries(fields))r.getCell(Number(col)).value=v as ExcelJS.CellValue;r.getCell(16).value={formula:`IF(B${item.row}="","",IFERROR(VLOOKUP(B${item.row},'Parts Checklist'!A:C,3,FALSE),"Unknown Part ID"))`,result:after.parts.find(p=>p.id===item.partId)?.name||''};}
- orders.getCell(item.row,17).value=item.id;const json=JSON.stringify(item);for(let offset=0;offset<json.length;offset+=30000)meta.getRow(metaNext++).values=[item.id,item.row,json.slice(offset,offset+30000)];}
- for(const p of after.parts){const old=before.parts.find(x=>x.id===p.id)!;let n=0;parts.eachRow((r,i)=>{if(i>1&&value(r.getCell(1))===p.id)n=i;});if(!n)throw Error('Missing purchasing part.');if(p.needed!==old.needed)parts.getCell(n,6).value=p.needed;if(p.onHand!==old.onHand)parts.getCell(n,7).value=p.onHand;parts.getCell(n,8).value=p.onOrder;parts.getCell(n,9).value={formula:`IF(OR(F${n}="",G${n}="",H${n}=""),"",MAX(0,F${n}-G${n}-H${n}))`,result:p.toSource??''};parts.getCell(n,10).value={formula:`IF(OR(F${n}="",G${n}="",H${n}=""),"Confirm quantity",IF(G${n}>=F${n},"On hand",IF(H${n}>0,"Ordered",IF(K${n}<>"","Sourcing","Need to source"))))`,result:p.status};if(p.supplier!==old.supplier)parts.getCell(n,11).value=p.supplier;if(p.orderedDate!==old.orderedDate)parts.getCell(n,12).value=p.orderedDate;if(p.receivedDate!==old.receivedDate)parts.getCell(n,13).value=p.receivedDate;}
- for(const entry of after.ledger.filter(e=>!before.ledger.some(x=>x.id===e.id)))appendLedger(entry,entry.id);
- w.calcProperties.fullCalcOnLoad=true;
-}
