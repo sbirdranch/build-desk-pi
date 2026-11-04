@@ -1,6 +1,6 @@
 # Purchasing refinement (WP-02)
 
-Implemented on `Refinement_v2`; production deployment and final evidence are recorded below after validation. User UI review follows deployment.
+Deployed on `Refinement_v2`; see [November 4 acceptance and rollback evidence](refinement-v2-acceptance-2026-11-04.md). User UI review is pending.
 
 ## Delivered behavior
 
@@ -43,7 +43,7 @@ Both landscape reports run locally in Node using PDFKit and bundled DejaVu Sans 
 
 Removed the email event parser/review endpoints, Drive queue loader/checker, OAuth utility, order process launchers, shipment/receipt/correction UI and commands, and the corresponding tests, fixtures and obsolete docs. Server startup has no queue hook. The old queue POST actions are no longer supported. Minimal legacy workbook decoding/types remain solely for archive migration and designer workbook ingestion; they expose no live order mutation commands.
 
-The Pi's user timers were inspected and none were configured. No matching local Codex automation directory existed. External email/Drive producers are not contacted by Build Desk. Existing ignored legacy queue files and credentials are archived during deployment and removed from the active runtime path; they are never committed.
+The Pi's user timers were inspected and none were configured. No matching local Codex automation directory existed. The separately authorized ChatGPT Scheduled inspection confirmed Dump Truck Order Watch was already Paused and it remains disabled. External email/Drive producers are not contacted by Build Desk. Existing ignored legacy queue files and credentials are archived during deployment and removed from the active runtime path; they are never committed.
 
 ## Deployment and rollback procedure
 
