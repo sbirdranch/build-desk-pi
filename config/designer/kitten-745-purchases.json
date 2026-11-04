@@ -1,0 +1,402 @@
+[
+  {
+    "id": "K745-B001",
+    "category": "Fasteners",
+    "description": "M2x6ST",
+    "required": 167,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B002",
+    "category": "Fasteners",
+    "description": "M2x10ST",
+    "required": 138,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B003",
+    "category": "Fasteners",
+    "description": "M3x6",
+    "required": 6,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B004",
+    "category": "Fasteners",
+    "description": "M3x8",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B005",
+    "category": "Fasteners",
+    "description": "M3x8ST",
+    "required": 28,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B006",
+    "category": "Fasteners",
+    "description": "M3x10",
+    "required": 38,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B007",
+    "category": "Fasteners",
+    "description": "M3x12",
+    "required": 11,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B008",
+    "category": "Fasteners",
+    "description": "M3x16",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B009",
+    "category": "Fasteners",
+    "description": "M3x16STCS",
+    "required": 68,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B010",
+    "category": "Fasteners",
+    "description": "M3x20",
+    "required": 10,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B011",
+    "category": "Fasteners",
+    "description": "M3x20STCS",
+    "required": 16,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B012",
+    "category": "Fasteners",
+    "description": "M3x30",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B013",
+    "category": "Fasteners",
+    "description": "M3x30STCS",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B014",
+    "category": "Fasteners",
+    "description": "M3x40",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B015",
+    "category": "Fasteners",
+    "description": "M3x50",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B016",
+    "category": "Fasteners",
+    "description": "M4x10",
+    "required": 8,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B017",
+    "category": "Fasteners",
+    "description": "M5x30",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B018",
+    "category": "Fasteners",
+    "description": "M5x35",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B019",
+    "category": "Fasteners",
+    "description": "M3 washer",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B020",
+    "category": "Fasteners",
+    "description": "M3 locknut",
+    "required": 16,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B021",
+    "category": "Fasteners",
+    "description": "M5 locknut",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B022",
+    "category": "Fasteners",
+    "description": "M8 locknut",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist.txt; shared 740/745 list, confirm against 745 manual."
+  },
+  {
+    "id": "K745-B023",
+    "category": "Bearings",
+    "description": "Bearing 3x8x4",
+    "required": null,
+    "specification": "3x8x4 mm",
+    "requirement": "Conflicting designer counts: Screwlist.txt 16; What you need list 20. Confirm from manual."
+  },
+  {
+    "id": "K745-B024",
+    "category": "Bearings",
+    "description": "Bearing 5x11x4",
+    "required": null,
+    "specification": "5x11x4 mm",
+    "requirement": "Conflicting designer counts: Screwlist.txt 18; What you need list 19. Confirm from manual."
+  },
+  {
+    "id": "K745-B025",
+    "category": "Bearings",
+    "description": "Bearing 8x22x7",
+    "required": 5,
+    "specification": "8x22x7 mm",
+    "requirement": "Both designer lists specify 5."
+  },
+  {
+    "id": "K745-B026",
+    "category": "Rods",
+    "description": "Threaded rod M5x80",
+    "required": 1,
+    "specification": "mm",
+    "requirement": "Designer Screwlist.txt"
+  },
+  {
+    "id": "K745-B027",
+    "category": "Rods",
+    "description": "Threaded rod M5x92",
+    "required": 1,
+    "specification": "mm",
+    "requirement": "Designer Screwlist.txt"
+  },
+  {
+    "id": "K745-B028",
+    "category": "Rods",
+    "description": "Threaded rod M5x240",
+    "required": 2,
+    "specification": "mm",
+    "requirement": "Designer Screwlist.txt"
+  },
+  {
+    "id": "K745-B029",
+    "category": "Rods",
+    "description": "Threaded rod M8x76",
+    "required": 1,
+    "specification": "mm",
+    "requirement": "Designer Screwlist.txt"
+  },
+  {
+    "id": "K745-B030",
+    "category": "Rods",
+    "description": "Threaded rod M8x315",
+    "required": 2,
+    "specification": "mm",
+    "requirement": "Designer Screwlist.txt"
+  },
+  {
+    "id": "K745-B031",
+    "category": "Rods",
+    "description": "T8 threaded rod with brass nut",
+    "required": 1,
+    "specification": "200mm; 2mm pitch, 8mm lead",
+    "requirement": "Both designer lists; one item, not duplicated."
+  },
+  {
+    "id": "K745-B032",
+    "category": "Motors",
+    "description": "Tipping motor",
+    "required": 1,
+    "specification": "JGB37-555; 12V, 143rpm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B033",
+    "category": "Bearings",
+    "description": "Thrust bearing",
+    "required": 1,
+    "specification": "AXK2542 2AS; 25mm inner, 42mm outer",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B034",
+    "category": "Electronics",
+    "description": "One-way diode",
+    "required": 4,
+    "specification": "1N4004",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B035",
+    "category": "Electronics",
+    "description": "End switch",
+    "required": 4,
+    "specification": "20x6x10mm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B036",
+    "category": "Electronics",
+    "description": "ESC",
+    "required": 3,
+    "specification": "1060",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B037",
+    "category": "Couplings",
+    "description": "Motor coupler",
+    "required": 1,
+    "specification": "6mm to 8mm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B038",
+    "category": "Wheels",
+    "description": "Kitten 745 tire",
+    "required": 6,
+    "specification": "142mm",
+    "requirement": "745 variant only; exclude 740 tires."
+  },
+  {
+    "id": "K745-B039",
+    "category": "Motors",
+    "description": "Drive motor",
+    "required": 6,
+    "specification": "JGB37-3530; 12V, 76rpm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B040",
+    "category": "Motors",
+    "description": "Steering motor",
+    "required": 1,
+    "specification": "5840-31ZY worm gear; 12V, 12rpm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B041",
+    "category": "Electronics",
+    "description": "Light switch controller",
+    "required": 1,
+    "specification": "",
+    "requirement": "Optional designer item."
+  },
+  {
+    "id": "K745-B042",
+    "category": "Electronics",
+    "description": "Slow momentum reducer",
+    "required": 1,
+    "specification": "Drive-motor ESC",
+    "requirement": "Recommended by designer."
+  },
+  {
+    "id": "K745-B043",
+    "category": "Couplings",
+    "description": "Drive-wheel flanged coupling",
+    "required": 6,
+    "specification": "6mm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B044",
+    "category": "Couplings",
+    "description": "Steering-motor flanged coupling",
+    "required": 1,
+    "specification": "8mm",
+    "requirement": "Designer What you need Kitten740745.txt"
+  },
+  {
+    "id": "K745-B045",
+    "category": "Electronics",
+    "description": "Silicone wire",
+    "required": null,
+    "specification": "16 AWG",
+    "requirement": "Designer says approximately 1 meter? Confirm quantity and unit."
+  },
+  {
+    "id": "K745-B046",
+    "category": "Lighting",
+    "description": "Front and rear LEDs",
+    "required": null,
+    "specification": "5mm front; 3mm rear",
+    "requirement": "Designer does not specify quantities."
+  },
+  {
+    "id": "K745-B047",
+    "category": "Lighting",
+    "description": "Cabin roof lights",
+    "required": null,
+    "specification": "",
+    "requirement": "Designer does not specify quantity."
+  },
+  {
+    "id": "K745-B048",
+    "category": "Radio",
+    "description": "Transmitter and receiver",
+    "required": null,
+    "specification": "Flysky I6S; 6 or 10 channel receiver",
+    "requirement": "Designer does not specify quantity."
+  },
+  {
+    "id": "K745-B049",
+    "category": "Adhesives",
+    "description": "Superglue",
+    "required": null,
+    "specification": "",
+    "requirement": "Designer does not specify quantity."
+  },
+  {
+    "id": "K745-B050",
+    "category": "Adhesives",
+    "description": "Threadlocker or gel glue",
+    "required": null,
+    "specification": "",
+    "requirement": "Designer says loctite or Gelglue; quantity unconfirmed."
+  }
+]

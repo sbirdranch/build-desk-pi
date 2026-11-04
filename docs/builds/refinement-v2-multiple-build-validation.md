@@ -2,13 +2,13 @@
 Version: 0.2 (three-instance validation plan)
 Date: 2026-11-03
 Project: Build Desk Pi — Refinement_v2
-Status: Phase 4 pending. On November 4 the user reported a duplicate haul-truck project and a loader project ready for the second/third vehicle tests. Their locations and contents have not yet been inspected; do not treat them as validated datasets. Phase 3 remains the current work package.
+Status: Phase 4 in progress. The second truck source is `X:\3DModels\rc_Cat745instance2`; its designer STLs, original AI layout preparation and independent import are documented in [Second truck preparation](second-truck-import.md). Validate and deploy the second instance first. The loader remains pending the user's subsequent source path and review. Broad styling changes remain deferred.
 
 ## Objective
 Verify the existing multiple-build capability with two additional independent build instances while retaining the current Kitten 745 build and its data unchanged. This is validation and targeted repair, not permission to replace the build architecture wholesale.
 
 ## Verified repository baseline
-- Current versioned build registry describes one active build, `kitten-745`, with an Excel adapter.
+- The example registry retains the original Excel configuration; production uses the separately inspected private registry and schema-3 SQLite from Phases 1–3.
 - The Raspberry Pi runtime has a separate, Git-ignored `local-data/builds.pi.json` registry; its exact current contents must be inspected on-device before deployment.
 - The design supports per-build IDs, datastore descriptors, asset roots/catalogs, model directories, workflow options and printer identity, selected through a build picker.
 - The documented backend enforces build-scoped data and assets; identical part IDs in different builds must not collide.
