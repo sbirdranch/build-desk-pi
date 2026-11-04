@@ -24,17 +24,23 @@ def md(node):
     return {x.get('key'): x.get('value') for x in node.findall('metadata')}
 
 
-def require_fixed_rotations(path):
-    """Reject layouts that rotate/scale the imported designer geometry."""
-    identity = [1,0,0,0,1,0,0,0,1]
+def require_preserved_print_face(path):
+    """Allow placement and Z rotation; preserve the designer's print face/geometry."""
     with zipfile.ZipFile(path) as archive:
         for name in archive.namelist():
             if not name.endswith('.model'): continue
             for node in ET.fromstring(archive.read(name)).iter():
                 if 'transform' not in node.attrib: continue
                 values = [float(x) for x in node.get('transform').split()]
-                if len(values) != 12 or not all(math.isfinite(x) for x in values) or any(abs(x-y)>1e-6 for x,y in zip(values[:9],identity)):
-                    raise ValueError(f'{path.name}: layout rotates or scales a designer part. Prepare a layout with fixed designer rotations before reuse.')
+                valid = len(values) == 12 and all(math.isfinite(x) for x in values)
+                if valid:
+                    rows = [values[i:i+3] for i in [0,3,6]]
+                    face = all(abs(values[i]-expected)<1e-6 for i,expected in [(2,0),(5,0),(6,0),(7,0),(8,1)])
+                    rigid = all(abs(sum(rows[i][k]*rows[j][k] for k in range(3))-(1 if i==j else 0))<1e-6 for i in range(3) for j in range(3))
+                    proper = abs(values[0]*values[4]-values[1]*values[3]-1)<1e-6
+                    valid = face and rigid and proper
+                if not valid:
+                    raise ValueError(f'{path.name}: layout changes the designer print face or geometry. Bed-plane rotation and translation are allowed; tilting, flipping, scaling and mirroring are not.')
 
 
 def main():
@@ -60,8 +66,8 @@ def main():
     assert len(layouts) == 6
     for row in layouts:
         assert sha(a.templates / row['filename']) == row['sha256'], row['filename']
-        require_fixed_rotations(a.templates / row['filename'])
-    require_fixed_rotations(a.wheel)
+        require_preserved_print_face(a.templates / row['filename'])
+    require_preserved_print_face(a.wheel)
     output = a.output.resolve()
     models = output / 'models'; assets = output / 'assets'
     models.mkdir(parents=True); assets.mkdir()

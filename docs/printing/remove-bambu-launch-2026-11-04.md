@@ -43,9 +43,10 @@ flips or reflections. However, Bambu's arrange operation changed positions and
 rotated 65 part instances around Z. Exact designer rotations were therefore not
 retained, although the original print faces were retained.
 
-The user requires fixed designer rotations for future generation. The preparation
-helper now rejects rotated/scaled/nonfinite template transforms before producing
-output; all seven current arranged drafts fail that guard. Existing source and
-project files were left intact. This blocks silent reuse, rather than claiming
-the current drafts have been regenerated with fixed rotations. See the detailed
+The user subsequently clarified that bed-plane rotation and placement changes
+are acceptable, provided the designer's print face is retained. The initial
+fixed-rotation restriction is superseded. The preparation helper now permits
+Z-axis rotation and translation, rejecting tilts/flips, scaling, mirroring and
+nonfinite transforms. All seven current drafts pass. Existing source/project
+files remain unchanged and need no orientation regeneration. See the detailed
 record in `docs/builds/second-truck-import.md`.

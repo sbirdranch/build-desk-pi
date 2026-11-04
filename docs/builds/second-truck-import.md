@@ -90,7 +90,8 @@ The loader is deliberately deferred until the second truck is tested and reviewe
 
 ## Designer orientation requirement — subsequent user clarification
 
-The user requires the designer's part orientation to be preserved. An audit of
+The user requires the designer's print face to be preserved and explicitly
+allows rotation within the bed plane and repositioning. An audit of
 all seven Truck 2 drafts found 65 of 101 parts rotated around Z by Bambu's arrange
 operation. No component/build transform tilts or flips a part. Comparing every
 embedded geometry vertex against the hash-verified original STL, after translation
@@ -98,11 +99,12 @@ only, confirmed all 101 original geometry axes (maximum numerical difference
 0.000054 mm). Thus the original print face is retained, but exact rotations and
 positions are not. Source STLs and existing 3MFs were not modified by this audit.
 
-The preparation helper now rejects templates with nonidentity rotation/scale
-before writing an output directory. The earlier arranged templates, including
-the current drafts, therefore cannot silently be reused for future generation.
-They need an orientation-preserving layout process first. Future generation must
-keep designer rotations fixed; any necessary plate translation must be explicit.
-Do not assume a preserved print face alone satisfies this requirement or proves
-optimal printing. Local audit results are retained under `local-data/phase4` as
+The preparation helper permits translation and arbitrary Z-axis rotation, while
+rejecting tilts/flips that change the designer's print face, scaling, mirroring
+and nonfinite transforms. All seven existing drafts pass this clarified check;
+they need no regeneration for orientation. Earlier fixed-rotation restrictions
+are superseded by this explicit clarification. The source STL geometry must
+retain its original axes before these placement transforms, as verified in this
+audit. This check does not establish sliced or physical print readiness.
+Local audit results are retained under `local-data/phase4` as
 `orientation-transforms.json` and `orientation-geometry.json`.
