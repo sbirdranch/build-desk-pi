@@ -6,6 +6,7 @@ the original prepared layouts and source STLs are never changed.
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 import re
 import shutil
@@ -32,7 +33,7 @@ def require_fixed_rotations(path):
             for node in ET.fromstring(archive.read(name)).iter():
                 if 'transform' not in node.attrib: continue
                 values = [float(x) for x in node.get('transform').split()]
-                if len(values) != 12 or any(abs(x-y)>1e-6 for x,y in zip(values[:9],identity)):
+                if len(values) != 12 or not all(math.isfinite(x) for x in values) or any(abs(x-y)>1e-6 for x,y in zip(values[:9],identity)):
                     raise ValueError(f'{path.name}: layout rotates or scales a designer part. Prepare a layout with fixed designer rotations before reuse.')
 
 
