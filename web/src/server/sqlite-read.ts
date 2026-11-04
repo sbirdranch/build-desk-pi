@@ -22,6 +22,10 @@ export function readSQLiteSnapshot(db:DatabaseSync,buildId:string):Snapshot {
    id:str(p.id),name:str(p.name),section:str(p.section),source:str(p.source),material:str(p.material),
    required:opt(p.required_qty),opening:Number(p.opening_qty),accepted:0,installed:Number(p.installed_qty),notes:str(p.notes)
  }));
+ for(const f of rows(db,'SELECT * FROM fabrication_parts WHERE build_id=? ORDER BY part_id',buildId)){
+  const part=parts.find(p=>p.id===str(f.part_id));if(!part)throw Error('Fabricated part not found');
+  part.fabrication={completed:Number(f.completed_qty),method:str(f.method) as NonNullable<Part['fabrication']>['method']};
+ }
  const files:ModelFile[]=rows(db,'SELECT * FROM model_files WHERE build_id=? ORDER BY id',buildId).map(f=>({
    id:str(f.id),filename:str(f.filename),revision:str(f.revision_label),profile:str(f.profile),material:str(f.material),section:str(f.section),
    ...(f.source_hash!=null?{sourceHash:str(f.source_hash)}:{}),...(f.imported_at!=null?{importedAt:str(f.imported_at)}:{})

@@ -1,6 +1,6 @@
 // SQLite schema for Build Desk v2. A new database starts at schema version 1.
 // This module intentionally has no runtime or Excel dependencies.
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -22,6 +22,13 @@ CREATE TABLE IF NOT EXISTS print_parts (
   installed_qty INTEGER NOT NULL CHECK(typeof(installed_qty)='integer' AND installed_qty >= 0),
   notes TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(build_id,id), FOREIGN KEY(build_id) REFERENCES builds(id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS fabrication_parts (
+  build_id TEXT NOT NULL, part_id TEXT NOT NULL,
+  completed_qty INTEGER NOT NULL DEFAULT 0 CHECK(typeof(completed_qty)='integer' AND completed_qty >= 0),
+  method TEXT NOT NULL DEFAULT 'Unspecified' CHECK(method IN ('Unspecified','Hand made','Outsourced')),
+  PRIMARY KEY(build_id,part_id),
+  FOREIGN KEY(build_id,part_id) REFERENCES print_parts(build_id,id) ON DELETE RESTRICT
 );
 CREATE TABLE IF NOT EXISTS model_files (
   build_id TEXT NOT NULL, id TEXT NOT NULL, filename TEXT NOT NULL,
@@ -127,6 +134,16 @@ CREATE INDEX IF NOT EXISTS idx_jobs_status ON print_jobs(build_id,status);
 CREATE INDEX IF NOT EXISTS idx_job_items_part ON print_job_items(build_id,part_id);
 CREATE INDEX IF NOT EXISTS idx_purchase_ordered ON purchase_parts(build_id,ordered);
 CREATE INDEX IF NOT EXISTS idx_purchase_vendor ON purchase_parts(vendor_id);
+CREATE TRIGGER IF NOT EXISTS no_fabricated_plate_assignment BEFORE INSERT ON plate_assignments
+WHEN EXISTS(SELECT 1 FROM fabrication_parts WHERE build_id=NEW.build_id AND part_id=NEW.part_id)
+BEGIN SELECT RAISE(ABORT,'Fabricated parts cannot be assigned to print plates'); END;
+CREATE TRIGGER IF NOT EXISTS no_printed_fabrication BEFORE INSERT ON fabrication_parts
+WHEN EXISTS(SELECT 1 FROM plate_assignments WHERE build_id=NEW.build_id AND part_id=NEW.part_id)
+ OR EXISTS(SELECT 1 FROM print_job_items WHERE build_id=NEW.build_id AND part_id=NEW.part_id)
+BEGIN SELECT RAISE(ABORT,'Printed parts cannot become fabricated parts'); END;
+CREATE TRIGGER IF NOT EXISTS no_fabricated_print_result BEFORE INSERT ON print_job_items
+WHEN EXISTS(SELECT 1 FROM fabrication_parts WHERE build_id=NEW.build_id AND part_id=NEW.part_id)
+BEGIN SELECT RAISE(ABORT,'Fabricated parts cannot receive print results'); END;
 `;
 export function initializeSchema(db) {
  db.exec('PRAGMA foreign_keys=ON');
@@ -136,7 +153,7 @@ export function initializeSchema(db) {
  db.exec('BEGIN IMMEDIATE');
  try {
   db.exec(SCHEMA_SQL);
-  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Preserve Phase 1 runtime compatibility and migration provenance',new Date().toISOString());
+  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Add build-scoped fabricated components without changing printed history',new Date().toISOString());
   if(db.prepare('PRAGMA foreign_key_check').all().length)throw Error('SQLite foreign key validation failed');
   db.exec('COMMIT');
  }catch(e){db.exec('ROLLBACK');throw e;}

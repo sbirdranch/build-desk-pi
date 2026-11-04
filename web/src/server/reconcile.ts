@@ -1,3 +1,4 @@
+import {matchPrintedSource} from './part-source';
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -21,7 +22,7 @@ export async function inspectMembership(bytes:Buffer,snapshot:Snapshot,fileId:st
  const settings=await xml('Metadata/model_settings.config'),model=await xml('3D/3dmodel.model');
  const objects=new Map(many<Node>(settings.config?.object).map(o=>[String(o['@_id']),o]));
  const items=many<Node>(model.model?.build?.item);
- const match=(name:string)=>snapshot.parts.filter(p=>path.win32.basename(p.source).toLowerCase()===path.win32.basename(name).toLowerCase());
+ const match=(name:string,sourcePath=false)=>matchPrintedSource(snapshot.parts,name,sourcePath);
  const sourceHash=createHash('sha256').update(bytes).digest('hex');
  const confirmed=objectMatches.filter(m=>m.buildId===snapshot.build.id&&m.fileId===fileId&&m.sourceHash===sourceHash);
  const plates:ImportedPlate[]=[],untracked:number[]=[];
@@ -40,14 +41,14 @@ export async function inspectMembership(bytes:Buffer,snapshot:Snapshot,fileId:st
    let matches=match(name),split=false;
    if(matches.length!==1) {
     const sources=[...new Set(many<Node>(object.part).map(p=>metadata(p).source_file).filter(Boolean))];
-    if(sources.length===1)matches=match(sources[0]);
+    if(sources.length===1)matches=match(sources[0],true);
    }
    if(matches.length!==1&&/\.stl_\d+$/i.test(name)){matches=match(name.replace(/_\d+$/,''));split=matches.length===1;}
    const overrides=confirmed.filter(m=>m.plateNumber===number&&m.objectName===name);
    if(overrides.length){
     if(overrides.length!==1)throw new DomainError('Conflicting confirmed object matches.');
     const source=(value:string)=>path.win32.normalize(value).toLowerCase();
-    matches=snapshot.parts.filter(p=>source(p.source)===source(overrides[0].partSource));
+    matches=snapshot.parts.filter(p=>!p.fabrication&&source(p.source)===source(overrides[0].partSource));
     if(matches.length!==1)throw new DomainError('The confirmed object match no longer identifies one tracked part.');
    }
    if(matches.length!==1){unmapped.push(name);continue;}

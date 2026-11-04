@@ -1,3 +1,4 @@
+import {matchPrintedSource} from './part-source';
 import {readFile,writeFile,mkdir,open,unlink} from 'node:fs/promises';
 import path from 'node:path';
 import {createHash} from 'node:crypto';
@@ -32,7 +33,14 @@ async function refreshUnlocked(config:BuildConfig,snapshot:Snapshot,fileId:strin
  async function xml(name:string){const entry=zip.file(name);if(!entry)return {};const raw=await entry.async('string');if(raw.length>2_000_000||/<!DOCTYPE/i.test(raw))throw new DomainError('Unsupported project metadata.');return parser.parse(raw) as Record<string,XmlNode>;}
  const settings=await xml('Metadata/model_settings.config');const slice=await xml('Metadata/slice_info.config');const model=await xml('3D/3dmodel.model');const buildItems=array((model.model?.build as XmlNode)?.item as XmlNode|XmlNode[]);const cat=await assets(config);const existing=cat.projects.find(p=>p.id===file.id);if(!existing)throw new DomainError('This project has no registered asset catalog yet.');
  const changed=existing.sha256!==fingerprint;const objects=Object.fromEntries(array(settings.config?.object as XmlNode|XmlNode[]).map(o=>[String(o['@_id']),metadata(o).name||'Unnamed object']));
- const partNames=new Map(snapshot.parts.map(p=>[path.win32.basename(p.source).toLowerCase(),p.id]));
+ const savedObjects=array(settings.config?.object as XmlNode|XmlNode[]);
+ const partForObject=(id:string)=>{
+  const obj=savedObjects.find(o=>String(o['@_id'])===id),name=objects[id]||id;
+  let matches=matchPrintedSource(snapshot.parts,name);
+  if(matches.length!==1&&obj){const sources=[...new Set(array(obj.part as XmlNode|XmlNode[]).map(p=>metadata(p).source_file).filter(Boolean))];if(sources.length===1)matches=matchPrintedSource(snapshot.parts,sources[0],true);}
+  if(matches.length!==1&&/\.stl_\d+$/i.test(name))matches=matchPrintedSource(snapshot.parts,name.replace(/_\d+$/,''));
+  return matches.length===1?matches[0].id:null;
+ };
  for(const plateNode of array(settings.config?.plate as XmlNode|XmlNode[])){
   const meta=metadata(plateNode);const number=Number(meta.plater_id);if(!Number.isInteger(number))continue;
   const id=`${file.id}-P${String(number).padStart(2,'0')}`;let plate=existing.plates.find(p=>p.id===id);if(!plate){plate={id,name:meta.plater_name||`Plate ${number}`,thumbnail:'',preview:'',tracking:'untracked_candidate'};existing.plates.push(plate);}
@@ -40,7 +48,7 @@ async function refreshUnlocked(config:BuildConfig,snapshot:Snapshot,fileId:strin
   const image=zip.file(meta.thumbnail_file||`Metadata/plate_${number}.png`);
   if(image){const raw=await image.async('nodebuffer');if(raw.length>10_000_000)throw new DomainError('Oversize thumbnail in project.');const relative=`plates/${id}/refreshed.png`;await mkdir(path.join(assetRoot(config),'plates',id),{recursive:true});await writeFile(path.join(assetRoot(config),relative),raw);plate.preview=relative;plate.thumbnail=relative;}
   plate.name=meta.plater_name||plate.name;
-  plate.instances=array(plateNode.model_instance as XmlNode|XmlNode[]).map(instance=>{const im=metadata(instance);const name=objects[im.object_id]||im.object_id;const item=buildItems.filter(i=>String(i['@_objectid'])===im.object_id)[Number(im.instance_id||0)];if(!item)throw new DomainError('A saved plate instance has no matching model object. Review it in Bambu Studio.');return {name,part_id:partNames.get(name.toLowerCase())||null,enabled:String(item['@_printable']??'1')!=='0'};});
+  plate.instances=array(plateNode.model_instance as XmlNode|XmlNode[]).map(instance=>{const im=metadata(instance);const name=objects[im.object_id]||im.object_id;const item=buildItems.filter(i=>String(i['@_objectid'])===im.object_id)[Number(im.instance_id||0)];if(!item)throw new DomainError('A saved plate instance has no matching model object. Review it in Bambu Studio.');return {name,part_id:partForObject(im.object_id),enabled:String(item['@_printable']??'1')!=='0'};});
   const savedSlice=array(slice.config?.plate as XmlNode|XmlNode[]).find(p=>{const m=metadata(p);return Number(m.index||m.plater_id)===number});
   const sm=savedSlice?metadata(savedSlice):{};const seconds=Number(sm.prediction);const grams=savedSlice?array(savedSlice.filament as XmlNode|XmlNode[]).reduce((n,f)=>n+Number(f['@_used_g']||0),0):0;
   plate.slice_info=seconds>0?{status:'saved_slice_metadata',label:`Saved estimate · ${Math.round(seconds/60)} min${grams>0?` · ${grams.toFixed(1)} g`:''}`}:{status:'not_yet_sliced',label:'Not yet sliced'};

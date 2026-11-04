@@ -16,12 +16,14 @@ const insert=(db:DatabaseSync,sql:string,values:unknown[][])=>{
 function replacePrinting(db:DatabaseSync,id:string,s:Snapshot) {
  // A small (single-user, Pi-hosted) dataset allows atomic replacement of one build's
  // mutable Printing projection. This never deletes the other build's records or purchases.
- for(const table of ['inspection_drafts','print_job_items','print_jobs','preparation_items',
+ for(const table of ['fabrication_parts','inspection_drafts','print_job_items','print_jobs','preparation_items',
    'plate_preparations','plate_assignments','plates','model_files','print_parts']) {
    db.prepare('DELETE FROM '+table+' WHERE build_id=?').run(id);
  }
  insert(db,'INSERT INTO print_parts(build_id,id,name,section,source,material,required_qty,opening_qty,installed_qty,notes) VALUES(?,?,?,?,?,?,?,?,?,?)',
    s.parts.map(p=>[id,p.id,p.name,p.section,p.source,p.material,p.required,p.opening,p.installed,p.notes]));
+ insert(db,'INSERT INTO fabrication_parts(build_id,part_id,completed_qty,method) VALUES(?,?,?,?)',
+   s.parts.filter(p=>p.fabrication).map(p=>[id,p.id,p.fabrication!.completed,p.fabrication!.method]));
  insert(db,'INSERT INTO model_files(build_id,id,filename,revision_label,profile,material,section,source_hash,imported_at) VALUES(?,?,?,?,?,?,?,?,?)',
    s.files.map(f=>[id,f.id,f.filename,f.revision,f.profile,f.material,f.section,f.sourceHash||null,f.importedAt||null]));
  insert(db,'INSERT INTO plates(build_id,id,file_id,plate_number,name,section,unmapped_json) VALUES(?,?,?,?,?,?,?)',

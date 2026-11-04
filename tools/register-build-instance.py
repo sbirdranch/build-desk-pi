@@ -29,7 +29,7 @@ def register(source, output, manifest_path):
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     with sqlite3.connect('file:' + source.as_posix() + '?mode=ro', uri=True) as original:
         assert original.execute('PRAGMA integrity_check').fetchone()[0] == 'ok'
-        assert original.execute('SELECT MAX(version) FROM schema_migrations').fetchone()[0] == 3
+        assert original.execute('SELECT MAX(version) FROM schema_migrations').fetchone()[0] == 4
         assert not original.execute('SELECT id FROM builds WHERE id=?', (id,)).fetchone(), 'Build already registered'
         before = build_fingerprints(original)
         # Exclusive reservation prevents accidental replacement of a prior output.
@@ -41,8 +41,12 @@ def register(source, output, manifest_path):
         db.execute('INSERT INTO builds VALUES(?,?,?,?,?)', (id, m['name'], 1, m['printerId'], now))
         db.execute('INSERT INTO build_revisions VALUES(?,?,?)', (id, 0, now))
         for p in m['parts']:
-            assert p['required'] is None, 'Fresh STL imports must not infer assembly quantities'
-            db.execute('INSERT INTO print_parts VALUES(?,?,?,?,?,?,?,?,?,?)', (id,p['id'],p['name'],p['section'],p['source'],p['material'],None,0,0,p['notes']))
+            assert p['required'] is None or p.get('fabrication') and type(p['required']) is int and p['required']>=0, 'Only explicit fabricated design quantities may be imported'
+            db.execute('INSERT INTO print_parts VALUES(?,?,?,?,?,?,?,?,?,?)', (id,p['id'],p['name'],p['section'],p['source'],p['material'],p['required'],0,0,p['notes']))
+        for p in m['parts']:
+            if p.get('fabrication'):
+                assert p['fabrication']==dict(completed=0,method='Unspecified')
+                db.execute('INSERT INTO fabrication_parts VALUES(?,?,?,?)',(id,p['id'],0,'Unspecified'))
         for f in m['files']:
             assert re.fullmatch(r'[0-9a-f]{64}', f['sourceHash'])
             assert Path(f['filename']).name == f['filename'] and f['filename'].endswith('.3mf')
@@ -53,14 +57,15 @@ def register(source, output, manifest_path):
                 assert type(x['copies']) is int and x['copies'] > 0
                 db.execute('INSERT INTO plate_assignments VALUES(?,?,?,?,?,?,?)', (id,x['id'],p['id'],x['partId'],x['copies'],0,'Saved STL instances; preparation quantities require review.'))
         for p in m['purchases']:
+            assert p['id'] not in {part['id'] for part in m['parts']}, 'Purchasing and build components must be distinct'
             assert p['required'] is None or type(p['required']) is int and p['required'] >= 0
-            db.execute('INSERT INTO purchase_parts VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)', (id,p['id'],p['category'],p['description'],p['specification'],p['requirement'],p['required'],0,0,None,'',None,''))
+            db.execute('INSERT INTO purchase_parts VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)', (id,p['id'],p['category'],p['description'],p['specification'],p['requirement'],p['required'],0,0,None,p.get('url',''),None,''))
         db.execute('INSERT INTO runtime_compatibility VALUES(?,?,?,?)', (id,'{}','[]','{}'))
         snapshot = dict(build=dict(id=id,name=m['name']),revision='0',recordedAt=now,
             parts=[dict(p,opening=0,accepted=0,installed=0) for p in m['parts']],
             files=[dict(f,importedAt=now) for f in m['files']],
             plates=[dict(p,unmappedObjects=[],assignments=[dict(x,confirmed=False,note='Saved STL instances; preparation quantities require review.') for x in p['assignments']]) for p in m['plates']],
-            jobs=[],audit=[],acquisition=dict(parts=[dict(p,onHand=0,ordered=False,vendor='',url='',orderedDate='',notes='') for p in m['purchases']],vendors=[r[0] for r in db.execute('SELECT display_name FROM vendors ORDER BY normalized_name')]),
+            jobs=[],audit=[],acquisition=dict(parts=[dict(p,onHand=0,ordered=False,vendor='',url=p.get('url',''),orderedDate='',notes='') for p in m['purchases']],vendors=[r[0] for r in db.execute('SELECT display_name FROM vendors ORDER BY normalized_name')]),
             importProvenance=m)
         db.execute('INSERT INTO migration_sources VALUES(?,?,?,?)', (id,hashlib.sha256(raw).hexdigest(),json.dumps(snapshot),now))
         empty = json.dumps(dict(parts=[],items=[],ledger=[]))

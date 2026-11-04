@@ -1,0 +1,533 @@
+[
+  {
+    "id": "K980-B001",
+    "category": "Fasteners",
+    "description": "M2x6ST",
+    "required": 93,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B002",
+    "category": "Fasteners",
+    "description": "M2x6STCS",
+    "required": 30,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B003",
+    "category": "Fasteners",
+    "description": "M2x10ST",
+    "required": 181,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B004",
+    "category": "Fasteners",
+    "description": "M2,5x6",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B005",
+    "category": "Fasteners",
+    "description": "M3x6",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B006",
+    "category": "Fasteners",
+    "description": "M3x8",
+    "required": 24,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B007",
+    "category": "Fasteners",
+    "description": "M3x8ST",
+    "required": 44,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B008",
+    "category": "Fasteners",
+    "description": "M3x10ST",
+    "required": 25,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B009",
+    "category": "Fasteners",
+    "description": "M3x10",
+    "required": null,
+    "specification": "",
+    "requirement": "Designer screw list leaves this quantity blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B010",
+    "category": "Fasteners",
+    "description": "M3x12",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B011",
+    "category": "Fasteners",
+    "description": "M3x16STCS",
+    "required": 31,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B012",
+    "category": "Fasteners",
+    "description": "M3x20",
+    "required": 8,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B013",
+    "category": "Fasteners",
+    "description": "M3x20STCS",
+    "required": 4,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B014",
+    "category": "Fasteners",
+    "description": "M3x30STCS",
+    "required": 9,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B015",
+    "category": "Fasteners",
+    "description": "M3x25",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B016",
+    "category": "Fasteners",
+    "description": "M3x35",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B017",
+    "category": "Fasteners",
+    "description": "M3x50",
+    "required": 3,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B018",
+    "category": "Fasteners",
+    "description": "M4x8",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B019",
+    "category": "Fasteners",
+    "description": "M4x10",
+    "required": 8,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B020",
+    "category": "Fasteners",
+    "description": "M5x40",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B021",
+    "category": "Fasteners",
+    "description": "M5x6 furniture-bolt locking screw",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B022",
+    "category": "Locknuts",
+    "description": "M3",
+    "required": 8,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B023",
+    "category": "Locknuts",
+    "description": "M5",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B024",
+    "category": "Bearings",
+    "description": "3x8x4",
+    "required": 12,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B025",
+    "category": "Bearings",
+    "description": "5x11x4",
+    "required": 18,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B026",
+    "category": "Rods",
+    "description": "M3x244mm",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B027",
+    "category": "Rods",
+    "description": "M3x248mm",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B028",
+    "category": "Rods",
+    "description": "M5x60mm",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B029",
+    "category": "Rods",
+    "description": "M5x67mm",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B030",
+    "category": "Rods",
+    "description": "M6x20mm",
+    "required": 2,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B031",
+    "category": "Rods",
+    "description": "M6x54mm",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B032",
+    "category": "Rods",
+    "description": "M6x115mm",
+    "required": 1,
+    "specification": "",
+    "requirement": "Designer Screwlist; quantity unconfirmed where blank.",
+    "url": ""
+  },
+  {
+    "id": "K980-B033",
+    "category": "Electronics",
+    "description": "Hydraulic pump ESC",
+    "required": null,
+    "specification": "60A brushless",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/1005007483518054.html"
+  },
+  {
+    "id": "K980-B034",
+    "category": "Hydraulics",
+    "description": "Three-way metal Y connector",
+    "required": 5,
+    "specification": "M5 threads; 4mm hose",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005005600353184.html"
+  },
+  {
+    "id": "K980-B035",
+    "category": "Motors",
+    "description": "Drive motor",
+    "required": 4,
+    "specification": "JGB37-3530; 12V, 35-45RPM",
+    "requirement": "Current designer recommendation; excludes superseded JGB37-555 alternative.",
+    "url": "https://www.aliexpress.com/item/1005008054333565.html"
+  },
+  {
+    "id": "K980-B036",
+    "category": "Electronics",
+    "description": "1060 ESC",
+    "required": 2,
+    "specification": "60A brushed",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/32946926451.html"
+  },
+  {
+    "id": "K980-B037",
+    "category": "Hydraulics",
+    "description": "Lifting cylinder",
+    "required": 2,
+    "specification": "70mm stroke; 20mm OD",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005004545445640.html"
+  },
+  {
+    "id": "K980-B038",
+    "category": "Hydraulics",
+    "description": "Cylinder brass reducing sleeve",
+    "required": 4,
+    "specification": "6mm ID x 8mm OD x 10mm length",
+    "requirement": "Sleeves for lifting cylinders.",
+    "url": "https://vi.aliexpress.com/item/1005007954250796.html"
+  },
+  {
+    "id": "K980-B039",
+    "category": "Hydraulics",
+    "description": "Bucket tilt cylinder",
+    "required": 2,
+    "specification": "50mm stroke; 16mm OD",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/4001167648338.html"
+  },
+  {
+    "id": "K980-B040",
+    "category": "Hydraulics",
+    "description": "Hydraulic pump",
+    "required": null,
+    "specification": "5055; 10MPA",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/1005004447048391.html"
+  },
+  {
+    "id": "K980-B041",
+    "category": "Hydraulics",
+    "description": "Pump fitting",
+    "required": null,
+    "specification": "PL6-01; 6mm hose",
+    "requirement": "May be supplied with pump; confirm before sourcing. Updated recommendation is 6mm, not 4mm.",
+    "url": "https://vi.aliexpress.com/item/1005003267578668.html"
+  },
+  {
+    "id": "K980-B042",
+    "category": "Hydraulics",
+    "description": "Hydraulic oil tank",
+    "required": null,
+    "specification": "100ml",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/4000699957193.html"
+  },
+  {
+    "id": "K980-B043",
+    "category": "Radio",
+    "description": "Transmitter and receiver",
+    "required": null,
+    "specification": "Flysky i6s with ia10b",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/1005005127198585.html"
+  },
+  {
+    "id": "K980-B044",
+    "category": "Hydraulics",
+    "description": "Hydraulic valve block",
+    "required": null,
+    "specification": "2 channels; 4mm hoses; M5 threads",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/1005006323125155.html"
+  },
+  {
+    "id": "K980-B045",
+    "category": "Electronics",
+    "description": "Cooling fan",
+    "required": 1,
+    "specification": "6010; 12V",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005003384664294.html"
+  },
+  {
+    "id": "K980-B046",
+    "category": "Hydraulics",
+    "description": "Cylinder fitting coupling",
+    "required": 2,
+    "specification": "5x8x10; M5 internal threads",
+    "requirement": "Must have M5 threads inside.",
+    "url": "https://vi.aliexpress.com/item/1005006535596127.html"
+  },
+  {
+    "id": "K980-B047",
+    "category": "Hydraulics",
+    "description": "Hydraulic fittings",
+    "required": null,
+    "specification": "M5; 4mm hose; 90-degree and straight",
+    "requirement": "Designer recommends stocking at least 10; assembly count unconfirmed. Flat gaskets, not O-rings.",
+    "url": "https://www.aliexpress.com/item/1005004782686177.html"
+  },
+  {
+    "id": "K980-B048",
+    "category": "Hydraulics",
+    "description": "Hydraulic tube 4x2.5",
+    "required": null,
+    "specification": "4mm OD; 2.5mm ID",
+    "requirement": "Designer suggests about 3m and recommends extra; quantity/unit to confirm.",
+    "url": "https://www.aliexpress.com/item/1005004159304148.html"
+  },
+  {
+    "id": "K980-B049",
+    "category": "Hydraulics",
+    "description": "Hydraulic tube 6x4",
+    "required": null,
+    "specification": "6mm OD; 4mm ID",
+    "requirement": "Designer suggests up to 30cm; quantity/unit to confirm.",
+    "url": "https://www.aliexpress.com/item/1005004159304148.html"
+  },
+  {
+    "id": "K980-B050",
+    "category": "Couplings",
+    "description": "Drive-wheel flanged coupling",
+    "required": 4,
+    "specification": "6mm",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005002527423374.html"
+  },
+  {
+    "id": "K980-B051",
+    "category": "Couplings",
+    "description": "Steering flanged coupling",
+    "required": 1,
+    "specification": "8mm",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005007943078474.html"
+  },
+  {
+    "id": "K980-B052",
+    "category": "Fasteners",
+    "description": "Furniture bolt",
+    "required": 2,
+    "specification": "16mm length; 6mm OD; M5 threads",
+    "requirement": "Combined duplicate entry from both designer lists.",
+    "url": "https://vi.aliexpress.com/item/1005003774005608.html"
+  },
+  {
+    "id": "K980-B053",
+    "category": "Wheels",
+    "description": "Tire",
+    "required": 4,
+    "specification": "137mm",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005004999645089.html"
+  },
+  {
+    "id": "K980-B054",
+    "category": "Motors",
+    "description": "Steering motor",
+    "required": null,
+    "specification": "5840-31ZY; 12V, 12rpm",
+    "requirement": "Quantity unconfirmed. Designer specifies 70% transmitter end points.",
+    "url": "https://vi.aliexpress.com/item/1005008996006252.html"
+  },
+  {
+    "id": "K980-B055",
+    "category": "Lighting",
+    "description": "Roof lights",
+    "required": null,
+    "specification": "",
+    "requirement": "Designer does not state quantity.",
+    "url": "https://vi.aliexpress.com/item/1005008182377893.html"
+  },
+  {
+    "id": "K980-B056",
+    "category": "Lighting",
+    "description": "Front lights",
+    "required": null,
+    "specification": "Product option: 2-Lights C",
+    "requirement": "Product option is not a confirmed assembly quantity.",
+    "url": "https://vi.aliexpress.com/item/1005004154810664.html"
+  },
+  {
+    "id": "K980-B057",
+    "category": "Electronics",
+    "description": "End switch",
+    "required": 2,
+    "specification": "SS5GL",
+    "requirement": "Designer What you need list.",
+    "url": "https://vi.aliexpress.com/item/1005006775995380.html"
+  },
+  {
+    "id": "K980-B058",
+    "category": "Electronics",
+    "description": "Diode",
+    "required": 2,
+    "specification": "1N4004",
+    "requirement": "Designer What you need list.",
+    "url": ""
+  },
+  {
+    "id": "K980-B059",
+    "category": "Electronics",
+    "description": "Silicone wire",
+    "required": null,
+    "specification": "16 AWG",
+    "requirement": "Approximately 1m for drive motors; quantity/unit to confirm.",
+    "url": "https://vi.aliexpress.com/item/1005007356973020.html"
+  }
+]
