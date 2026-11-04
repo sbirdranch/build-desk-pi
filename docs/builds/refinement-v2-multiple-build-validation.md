@@ -1,8 +1,8 @@
 # WP-04 — Multiple Build Validation
-Version: 0.2 (three-instance validation plan)
-Date: 2026-11-03
+Version: 0.3 (three-instance acceptance recorded)
+Date: 2026-11-04
 Project: Build Desk Pi — Refinement_v2
-Status: Phase 4 partly accepted. The second truck from `X:\3DModels\rc_Cat745instance2` is validated and deployed independently; see [acceptance and rollback](second-truck-acceptance-2026-11-04.md) and [source preparation](second-truck-import.md). The original truck's data is preserved. The loader remains pending the user's subsequent source path and review; full three-vehicle acceptance is not yet claimed. Broad styling changes remain deferred.
+Status: Phase 4 technical acceptance passed and all three builds are deployed. Both truck datasets remain intact. The distinct loader includes both buckets, fabricated components and overview references; see [loader acceptance and rollback](loader-acceptance-2026-11-04.md) and [source preparation](loader-import.md). User UI review and physical print preparation remain pending. Broad styling changes remain deferred; the reported vehicle-picker contrast defect is fixed.
 
 ## Objective
 Verify the existing multiple-build capability with two additional independent build instances while retaining the current Kitten 745 build and its data unchanged. This is validation and targeted repair, not permission to replace the build architecture wholesale.
@@ -57,12 +57,9 @@ H. Reconcile outcomes with WP-01 schema/migration and WP-02/WP-03 refinements, t
 - WP-03 Printing refinements and preserved preparation validations.
 - Runtime registry/NAS path verification before deployment.
 
-## Open inputs
-- Second designer package supplied and validated; required assembly quantities and conflicting bearing counts remain explicitly unconfirmed.
-- Identity and designer-source data package for the loader model, to be supplied by user.
-- The second build shares `h2d-main`; exclusion passed in isolated tests. Confirm the loader's printer identity when supplied.
-- Loader source files' schema, assets and mapping completeness.
-- Production updates and pushes were authorized. The second build is live; the loader follows subsequent review.
-
-## Out of scope
-A general-purpose build registration wizard, global parts inventory reconciliation, arbitrary vendor automations, using a copy of existing Kitten 745 tracking history in place of a fresh independent second instance, replacing user-supplied model data with synthetic production data.
+## Remaining review inputs
+- Required printed assembly quantities remain unconfirmed; STL instance counts are not assembly quantities.
+- Both loader buckets were explicitly selected. Custom metal designs are fabricated parts, separate from Purchasing and print jobs.
+- All three builds use `h2d-main`; three-build print exclusion passed on isolated clones.
+- User application UI review and physical spool/support/quantity/slicing review remain pending. No physical print qualification or extended Pi load qualification is claimed.
+- Production updates and branch pushes were authorized. Three-build deployment and a scoped vehicle-selector contrast fix are complete.
