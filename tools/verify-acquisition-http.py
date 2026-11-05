@@ -41,8 +41,8 @@ def main():
     initial = view['snapshot']
     assert 'acquisition' in initial and 'purchasing' not in initial
     part = initial['acquisition']['parts'][0]
-    fields = {k: part[k] for k in ['onHand', 'ordered', 'vendor', 'url', 'orderedDate', 'notes']}
-    fields.update(onHand=(part['required'] or 0) + 2, ordered=True, vendor='Acquisition Test Vendor', orderedDate=datetime.date.today().isoformat())
+    fields = {k: part[k] for k in ['onHand', 'ordered', 'vendor', 'url', 'alternateUrl', 'orderedDate', 'notes']}
+    fields.update(alternateUrl='https://alternate.example.com/item', onHand=(part['required'] or 0) + 2, ordered=True, vendor='Acquisition Test Vendor', orderedDate=datetime.date.today().isoformat())
     revision = initial['revision']
     body = dict(revision=revision, requestId=str(uuid.uuid4()), command=dict(type='save-acquisition', partId=part['id'], fields={**fields, 'required': 999999, 'description': 'Must not change'}))
     code, saved = request(route, body)
@@ -51,6 +51,8 @@ def main():
     changed = next(p for p in snapshot['acquisition']['parts'] if p['id'] == part['id'])
     assert changed['required'] == part['required'] and changed['description'] == part['description']
     assert changed['onHand'] == fields['onHand'] and changed['ordered'] is True
+    assert changed['alternateUrl'] == fields['alternateUrl']
+    assert next(p for p in request(route)[1]['snapshot']['acquisition']['parts'] if p['id'] == part['id'])['alternateUrl'] == fields['alternateUrl']
     assert 'Acquisition Test Vendor' in snapshot['acquisition']['vendors']
     assert snapshot['parts'] == initial['parts'] and snapshot['jobs'] == initial['jobs'] and snapshot['audit'] == initial['audit']
     code, replay = request(route, body)
@@ -58,7 +60,7 @@ def main():
     assert request(route, {**body, 'requestId': str(uuid.uuid4())})[0] == 409
     assert request(route, body, foreign=True)[0] == 403
     revision = snapshot['revision']
-    for update in [dict(onHand=-1), dict(onHand=1.5), dict(notes='x' * 201), dict(notes='é'), dict(url='javascript:alert(1)'), dict(orderedDate='2026-02-30')]:
+    for update in [dict(onHand=-1), dict(onHand=1.5), dict(notes='x' * 201), dict(notes='é'), dict(url='javascript:alert(1)'), dict(alternateUrl='javascript:alert(1)'), dict(alternateUrl='https://user:password@example.com'), dict(orderedDate='2026-02-30')]:
         bad = dict(type='save-acquisition', partId=part['id'], fields={**fields, **update})
         assert request(route, dict(revision=revision, requestId=str(uuid.uuid4()), command=bad))[0] == 422
     fields['ordered'] = False

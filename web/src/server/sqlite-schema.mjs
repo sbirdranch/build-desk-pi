@@ -1,6 +1,6 @@
 // SQLite schema for Build Desk v2. A new database starts at schema version 1.
 // This module intentionally has no runtime or Excel dependencies.
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -153,7 +153,8 @@ export function initializeSchema(db) {
  db.exec('BEGIN IMMEDIATE');
  try {
   db.exec(SCHEMA_SQL);
-  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Add build-scoped fabricated components without changing printed history',new Date().toISOString());
+  if(!db.prepare('PRAGMA table_info(purchase_parts)').all().some(c=>c.name==='alternate_url'))db.exec("ALTER TABLE purchase_parts ADD COLUMN alternate_url TEXT NOT NULL DEFAULT ''");
+  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Add persistent alternate purchasing URL',new Date().toISOString());
   if(db.prepare('PRAGMA foreign_key_check').all().length)throw Error('SQLite foreign key validation failed');
   db.exec('COMMIT');
  }catch(e){db.exec('ROLLBACK');throw e;}

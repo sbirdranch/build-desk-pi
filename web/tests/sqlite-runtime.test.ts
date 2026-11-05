@@ -47,8 +47,10 @@ test('SQLite runtime: shared printer race, inspection, Purchasing, rollback and 
   assert.equal(complete.snapshot.parts[0].accepted,1);
   assert.equal((await winner.commit(s.revision,request,finish,{})).replayed,true);
   await assert.rejects(winner.commit(s.revision,randomUUID(),finish,{}),/changed since/);
-  await save(winner,{type:'save-acquisition',partId:'buy',fields:{onHand:2,ordered:false,vendor:'Shop',url:'https://example.com',orderedDate:'',notes:'updated'}});
+  await save(winner,{type:'save-acquisition',partId:'buy',fields:{onHand:2,ordered:false,vendor:'Shop',url:'https://example.com',alternateUrl:'https://alternate.example.com/item',orderedDate:'',notes:'updated'}});
   assert.equal((await winner.load()).acquisition?.parts[0].onHand,2);
+  assert.equal((await winner.load()).acquisition?.parts[0].alternateUrl,'https://alternate.example.com/item');
+  assert.equal((await loser.load()).acquisition?.parts[0].alternateUrl,'');
   assert.equal((await loser.load()).acquisition?.parts[0].onHand,0);
   const before=await winner.load();
   db.exec("CREATE TRIGGER fail_commit BEFORE INSERT ON write_requests BEGIN SELECT RAISE(ABORT,'injected failure'); END;");

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {available,acquisitionProgress,filteredParts,toggleOrdered,validateEdit,type AcquisitionPart} from '../src/core/acquisition';
+import {available,acquisitionStatus,acquisitionStatusGroups,acquisitionProgress,filteredParts,toggleOrdered,validateEdit,type AcquisitionPart} from '../src/core/acquisition';
 import {DatabaseSync} from 'node:sqlite';
 import {initializeSchema} from '../src/server/sqlite-schema.mjs';
 import {activateAcquisition} from '../src/server/acquisition-migration';
@@ -8,7 +8,7 @@ import {importAcquisitionParts} from '../src/server/acquisition-import';
 import {readSQLiteSnapshot} from '../src/server/sqlite-read';
 import {applyCommand} from '../src/core/domain';
 import type {BuildConfig} from '../src/core/types';
-const part=(changes:Partial<AcquisitionPart>={}):AcquisitionPart=>({id:'p',category:'Hardware',description:'Screw',specification:'M3',requirement:'4',required:4,onHand:2,ordered:false,vendor:'Shop',url:'',orderedDate:'',notes:'',...changes});
+const part=(changes:Partial<AcquisitionPart>={}):AcquisitionPart=>({id:'p',category:'Hardware',description:'Screw',specification:'M3',requirement:'4',required:4,onHand:2,ordered:false,vendor:'Shop',url:'',alternateUrl:'',orderedDate:'',notes:'',...changes});
 test('availability, capped gauges, overlapping filters and empty/unknown requirements',()=>{
  const parts=[part({id:'partial',ordered:true}),part({id:'extra',onHand:9,ordered:true}),part({id:'zero',required:0,onHand:0}),part({id:'unknown',required:null,onHand:null})];
  assert.equal(available(parts[0]),false);assert.equal(available(parts[1]),true);
@@ -20,12 +20,12 @@ test('availability, capped gauges, overlapping filters and empty/unknown require
  assert.equal(acquisitionProgress([]).availablePercent,0);assert.equal(acquisitionProgress([parts[2]]).orderedPercent,0);
 });
 test('every toggle offers a date choice, preserving stock and independent flag across repeated toggles',()=>{
- const initial={onHand:2,ordered:false,vendor:'Shop',url:'',orderedDate:'',notes:''};
+ const initial={onHand:2,ordered:false,vendor:'Shop',url:'',alternateUrl:'',orderedDate:'',notes:''};
  const decline=toggleOrdered(initial,false,'2026-11-04');assert.equal(decline.ordered,true);assert.equal(decline.orderedDate,'');
  const accept=toggleOrdered(initial,true,'2026-11-04');assert.equal(accept.orderedDate,'2026-11-04');
  const off=toggleOrdered(accept,false,'2026-11-05');assert.equal(off.ordered,false);assert.equal(off.orderedDate,'2026-11-04');assert.equal(off.onHand,2);
  const offUpdate=toggleOrdered(accept,true,'2026-11-05');assert.equal(offUpdate.orderedDate,'2026-11-05');
- assert.deepEqual(initial,{onHand:2,ordered:false,vendor:'Shop',url:'',orderedDate:'',notes:''});
+ assert.deepEqual(initial,{onHand:2,ordered:false,vendor:'Shop',url:'',alternateUrl:'',orderedDate:'',notes:''});
  assert.equal(validateEdit({...accept,onHand:10}).ordered,true);
  for(const onHand of [-1,1.5,Number.MAX_SAFE_INTEGER+1,NaN])assert.throws(()=>validateEdit({...initial,onHand}),/whole/);
  for(const notes of ['é','x'.repeat(201)])assert.throws(()=>validateEdit({...initial,notes}));
@@ -50,5 +50,25 @@ test('activation archives legacy records, isolates builds, shares vendors and pr
   assert.equal(readSQLiteSnapshot(db,'loader').acquisition!.parts[0].required,4);
   assert.throws(()=>importAcquisitionParts(db,'truck',[{id:'p',description:'A',required:1},{id:'p',description:'B',required:2}]),/unique/);
   assert.deepEqual(activateAcquisition(db),[]);assert.deepEqual(db.prepare('PRAGMA foreign_key_check').all(),[]);
+ }finally{db.close()}
+});
+
+test('status groups partition unknown, ordered and available parts with availability taking precedence',()=>{
+ const parts=[part(),part({id:'ordered',ordered:true}),part({id:'ready',onHand:4,ordered:true}),part({id:'unknown',required:null,onHand:null})];
+ assert.deepEqual(parts.map(acquisitionStatus),['unavailable','ordered','available','unavailable']);
+ assert.deepEqual(acquisitionStatusGroups(parts).map(([label,rows])=>[label,rows.map(p=>p.id)]),[['Not Yet Available',['p','unknown']],['Ordered',['ordered']],['Available',['ready']]]);
+ for(const alternateUrl of ['javascript:alert(1)','https://user:password@example.com','x'.repeat(2001)])assert.throws(()=>validateEdit({...part(),alternateUrl}));
+ assert.equal(validateEdit({...part(),alternateUrl:'https://example.com/alternate'}).alternateUrl,'https://example.com/alternate');
+});
+
+test('schema 4 upgrade preserves existing purchasing data and initializes blank alternate URLs idempotently',()=>{
+ const db=new DatabaseSync(':memory:');initializeSchema(db);
+ try{
+  db.prepare('INSERT INTO builds VALUES(?,?,?,?,?)').run('truck','Truck',1,'printer','today');
+  db.prepare("INSERT INTO purchase_parts(build_id,id,description,product_url,notes) VALUES('truck','p','Screw','https://example.com','keep')").run();
+  db.exec("ALTER TABLE purchase_parts DROP COLUMN alternate_url; DELETE FROM schema_migrations; INSERT INTO schema_migrations VALUES(4,'previous','today')");
+  const before=db.prepare('SELECT * FROM purchase_parts').get();initializeSchema(db);initializeSchema(db);
+  const after=db.prepare('SELECT * FROM purchase_parts').get()!;assert.equal(after.alternate_url,'');delete after.alternate_url;assert.deepEqual(after,before);
+  assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get()?.v,5);
  }finally{db.close()}
 });

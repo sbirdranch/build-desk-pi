@@ -62,3 +62,5 @@
 /* Native vehicle menus must not inherit a transparent option background. */
 .build-select select{color-scheme:dark;background-color:var(--panel);color:var(--text)}
 .build-select option{background-color:var(--panel);color:var(--text)}
+
+.acquisition-row{min-height:38px;padding:8px;align-items:center}.acquisition-row>strong{min-width:0;overflow-wrap:anywhere}.acquisition-row-state{display:flex;align-items:center;gap:10px;max-width:none}.acquisition-status{display:inline-block;flex:none;width:13px;height:13px;border:2px solid var(--green);border-radius:50%;background:#14212a}.acquisition-status.available{background:var(--green)}.acquisition-status.unavailable{border-color:#b6c3ca;border-style:dashed}.acquisition-row:focus-visible{outline:2px solid var(--yellow);outline-offset:-2px}@media(max-width:800px){.acquisition-row{min-height:44px}}
