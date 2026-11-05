@@ -41,7 +41,7 @@ test('activation archives legacy records, isolates builds, shares vendors and pr
   const s=readSQLiteSnapshot(db,'truck');assert.equal(s.purchasing,undefined);assert.equal(s.acquisition?.parts[0].ordered,false);assert.equal(s.acquisition?.parts[0].notes,'Keep  full original');
   assert.match(String(db.prepare('SELECT legacy_json FROM purchasing_archives WHERE build_id=?').get('truck')?.legacy_json),/Keep é full original/);
   const config={active:true} as BuildConfig;
-  const changed=applyCommand(s,{type:'save-acquisition',partId:'p',fields:{onHand:9,ordered:true,vendor:'Another',url:'https://example.com/new',orderedDate:'2026-11-04',notes:'New note',required:999} as any},config,{});
+  const changed=applyCommand(s,{type:'save-acquisition',partId:'p',fields:{onHand:9,ordered:true,vendor:'Another',url:'https://example.com/new',alternateUrl:'https://alternate.example.com',orderedDate:'2026-11-04',notes:'New note',required:999} as any},config,{});
   assert.equal(changed.state.acquisition?.parts[0].required,4);assert.equal(changed.state.acquisition?.parts[0].onHand,9);
   assert.equal(readSQLiteSnapshot(db,'loader').acquisition?.parts[0].onHand,2);
   db.prepare("UPDATE purchase_parts SET on_hand_qty=9,ordered=1,notes='user note' WHERE build_id='truck'").run();
@@ -59,6 +59,7 @@ test('status groups partition unknown, ordered and available parts with availabi
  assert.deepEqual(acquisitionStatusGroups(parts).map(([label,rows])=>[label,rows.map(p=>p.id)]),[['Not Yet Available',['p','unknown']],['Ordered',['ordered']],['Available',['ready']]]);
  for(const alternateUrl of ['javascript:alert(1)','https://user:password@example.com','x'.repeat(2001)])assert.throws(()=>validateEdit({...part(),alternateUrl}));
  assert.equal(validateEdit({...part(),alternateUrl:'https://example.com/alternate'}).alternateUrl,'https://example.com/alternate');
+ assert.throws(()=>validateEdit({...part(),alternateUrl:undefined} as any),/alternate URL/);
 });
 
 test('schema 4 upgrade preserves existing purchasing data and initializes blank alternate URLs idempotently',()=>{
