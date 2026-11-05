@@ -50,6 +50,12 @@ projects outside Git. Backups must include committed WAL contents; use the onlin
 backup API or stop the service before a cold copy. Rollback must preserve any newer
 production edits and pair code with a compatible database schema.
 
+The current verified recovery snapshot is `local-data/current-backup-1.0.0`: it contains
+`tracking.db`, the registry, configuration, printer files, per-build asset copies and a
+SHA-256 manifest. Previous release rollback folders, obsolete databases and deployment
+stages have been removed. Rollback paths in dated acceptance records are no longer
+available. Use the current snapshot and a schema-compatible Git revision for recovery.
+
 Acceptance records below are evidence for specific deployments, not current setup
 recipes. Their dated database filenames, schema assumptions and historical workbook
 instructions must not be reused blindly:
