@@ -1,9 +1,9 @@
 {
   "name": "build-desk-assets",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "IntegratedSA LLC",
-  "description": "Local Excel-backed Build Desk application and model asset pipeline",
+  "description": "Raspberry Pi-hosted Build Desk application with SQLite tracking and model asset pipeline",
   "type": "module",
   "scripts": {
     "preview": "node tools/preview-server.mjs",

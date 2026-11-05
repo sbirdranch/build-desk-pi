@@ -5,12 +5,36 @@
       "id": "kitten-745",
       "name": "Kitten 745",
       "active": true,
-      "printer": {"id": "h2d-main", "name": "Bambu H2D · 0.4 mm"},
-      "store": {"kind": "excel", "path": "local-data/kitten-745/Master Tracker.xlsx", "schema": "master-tracker-v1"},
-      "assets": {"root": "assets/generated", "catalog": "catalog.json", "references": "references.json"},
-      "models": {"directory": "/mnt/builddesk-models"},
-      "workflow": {"defaultProfile": "Dump Truck Settings", "materials": ["PETG", "PETG HF", "TPU — reviewed Bambu default"], "maxPrintingJobs": 1},
-      "modules": ["printing", "purchasing"]
+      "printer": {
+        "id": "h2d-main",
+        "name": "Bambu H2D · 0.4 mm"
+      },
+      "store": {
+        "kind": "sqlite",
+        "path": "local-data/build-desk.db",
+        "schema": "build-desk-v2"
+      },
+      "assets": {
+        "root": "assets/generated",
+        "catalog": "catalog.json",
+        "references": "references.json"
+      },
+      "models": {
+        "directory": "/mnt/builddesk/BambuProjects/RC_DumpTruck"
+      },
+      "workflow": {
+        "defaultProfile": "Dump Truck Settings",
+        "materials": [
+          "PETG",
+          "PETG HF",
+          "TPU — reviewed Bambu default"
+        ],
+        "maxPrintingJobs": 1
+      },
+      "modules": [
+        "printing",
+        "purchasing"
+      ]
     }
   ]
 }
