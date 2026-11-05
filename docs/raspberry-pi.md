@@ -2,7 +2,9 @@
 
 ## Current production datastore — November 4, 2026
 
-Phases 1–4 of Refinement_v2 are deployed. After successful three-build validation, the user retired the disposable second truck. Current production contains **Kitten 745** and **Kitten 980 Loader** only, in SQLite schema 4 at `/home/preston/build-desk/local-data/build-desk-active-20261105T013902Z.db`, selected by the private `local-data/builds.pi.json` registry. Previous databases remain intact as backups. The original workbook is unchanged and read-only. Do not point Excel tools at the SQLite path.
+Phases 1–4 of Refinement_v2 are deployed. After successful three-build validation, the user retired the disposable second truck. Current production contains **Kitten 745** and **Kitten 980 Loader** only, in SQLite schema 5 at `/home/preston/build-desk/local-data/build-desk-purchasing-ui-20261105T132749Z.db`, selected by the private `local-data/builds.pi.json` registry. Previous databases remain intact as backups. The original workbook is unchanged and read-only. Do not point Excel tools at the SQLite path.
+
+Purchasing UI refinements were deployed November 5 at 8:27 AM EST, application commit `b3a7617`. Compact status decorators, three report groups, the vendor column and persistent Alternate URL are active. Existing data was verified unchanged across the schema upgrade. See [Purchasing UI acceptance and rollback](purchasing/ui-refinements-acceptance-2026-11-05.md).
 
 The original truck's production history is preserved. The loader includes both buckets, 88 printed component types, 26 fabricated metal types, seven tracked projects/22 plates, 59 Purchasing entries and three credited references. Its eight review projects (including window templates) remain in `/mnt/builddesk/BambuProjects/RC_Kitten980WheeledLoader`, with separate assets in `local-data/kitten-980-loader/assets`. Fabricated completion stays separate from print jobs and Purchasing. On user instruction, 82 unset loader component requirements were defaulted to one; 32 already-set quantities were preserved. These defaults are not designer-confirmed BOM quantities.
 
@@ -112,7 +114,7 @@ The actual Pi uses a user-owned installation because sudo requires local passwor
 | Application | `/home/preston/build-desk` |
 | Node.js 24.22.0 ARM64 | `/home/preston/.local/node/bin/node` |
 | Runtime registry | `/home/preston/build-desk/local-data/builds.pi.json` |
-| Active production tracker | `/home/preston/build-desk/local-data/build-desk-refinement2-20261104T175420Z.db` |
+| Active production tracker | `/home/preston/build-desk/local-data/build-desk-purchasing-ui-20261105T132749Z.db` |
 | Preserved pre-SQLite tracker | `/home/preston/build-desk/local-data/kitten-745/Master Tracker.xlsx` (read-only) |
 | Workbook backups/original export | `/home/preston/build-desk/local-data/kitten-745/backups` |
 | Generated assets | `/home/preston/build-desk/assets/generated` |
