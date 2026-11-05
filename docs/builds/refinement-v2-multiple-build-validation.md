@@ -2,7 +2,7 @@
 Version: 0.3 (three-instance acceptance recorded)
 Date: 2026-11-04
 Project: Build Desk Pi — Refinement_v2
-Status: Phase 4 technical acceptance passed and all three builds are deployed. Both truck datasets remain intact. The distinct loader includes both buckets, fabricated components and overview references; see [loader acceptance and rollback](loader-acceptance-2026-11-04.md) and [source preparation](loader-import.md). User UI review and physical print preparation remain pending. Broad styling changes remain deferred; the reported vehicle-picker contrast defect is fixed.
+Status: Phase 4 three-build technical acceptance passed. After testing, the user explicitly retired the disposable second truck; current production contains the original truck and loader. See [retirement and loader defaults](test-truck-retirement-2026-11-04.md), [loader acceptance](loader-acceptance-2026-11-04.md) and [source preparation](loader-import.md). Broad styling remains deferred; vehicle-picker contrast is fixed.
 
 ## Objective
 Verify the existing multiple-build capability with two additional independent build instances while retaining the current Kitten 745 build and its data unchanged. This is validation and targeted repair, not permission to replace the build architecture wholesale.
@@ -58,8 +58,8 @@ H. Reconcile outcomes with WP-01 schema/migration and WP-02/WP-03 refinements, t
 - Runtime registry/NAS path verification before deployment.
 
 ## Remaining review inputs
-- Required printed assembly quantities remain unconfirmed; STL instance counts are not assembly quantities.
+- Unset loader component requirements now default to one by user instruction; existing values are preserved. Physical assembly quantities still require review; STL instance counts are not assembly quantities.
 - Both loader buckets were explicitly selected. Custom metal designs are fabricated parts, separate from Purchasing and print jobs.
 - All three builds use `h2d-main`; three-build print exclusion passed on isolated clones.
 - User application UI review and physical spool/support/quantity/slicing review remain pending. No physical print qualification or extended Pi load qualification is claimed.
-- Production updates and branch pushes were authorized. Three-build deployment and a scoped vehicle-selector contrast fix are complete.
+- Production updates and branch pushes were authorized. Three-build testing and the vehicle-selector contrast fix are complete; the disposable test truck has since been removed from production.

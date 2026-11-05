@@ -1,6 +1,6 @@
 # Loader and three-build acceptance — November 4, 2026
 
-All three builds are deployed on the production Pi. Both loader buckets are included and existing truck data is preserved. The subsequent vehicle-selector contrast defect is fixed with explicit dark native select/option backgrounds and light text. Broad styling remains deferred.
+This records the successful three-build cutover. The disposable second truck was subsequently retired and blank loader requirements defaulted to one by user instruction; see the [current retirement/defaults record](test-truck-retirement-2026-11-04.md). At the cutover, all three builds were deployed on the production Pi. Both loader buckets are included and existing truck data is preserved. The subsequent vehicle-selector contrast defect is fixed with explicit dark native select/option backgrounds and light text. Broad styling remains deferred.
 
 ## Dataset and geometry
 
