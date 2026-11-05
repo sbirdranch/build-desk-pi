@@ -76,10 +76,10 @@ The user service uses `/home/preston/.local/node/bin/node`, the private registry
 
 Use 64-bit Linux ARM64 and **Node.js 24**, including `node:sqlite`. Install Git and Python 3 for offline import/maintenance tools. The established target is a Pi 3 B+; build memory is limited. Install dependencies on Linux ARM64 rather than copying Windows dependencies or build output.
 
-Authenticate the private repository with your own account. The deployed application line is `Refinement_v2`; choose a reviewed commit from that line, including the 1.0.0 housekeeping update, rather than assuming `main` has the same features.
+Authenticate the private repository with your own account. Use the reviewed `main` branch for deployment; the Refinement_v2 work is included in it. Pin a reviewed commit when preparing a release.
 
 ```sh
-git clone --branch Refinement_v2 https://github.com/sbirdranch/build-desk-pi.git "$HOME/build-desk"
+git clone --branch main https://github.com/sbirdranch/build-desk-pi.git "$HOME/build-desk"
 cd "$HOME/build-desk"
 npm ci --ignore-scripts
 npm --prefix web ci --ignore-scripts
