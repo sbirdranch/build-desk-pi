@@ -1,3 +1,4 @@
+import {manual} from './assembly';
 import {createHash,randomUUID} from 'node:crypto';
 import {preparationIssue,preparationData} from './preparation';
 import {validateEdit} from './acquisition';
@@ -5,7 +6,7 @@ import type {BuildConfig,Command,Snapshot,Job,JobItem,ResultInput} from './types
 export class DomainError extends Error {constructor(message:string,public status=422){super(message)}}
 export const integer=(n:unknown,min=0):n is number=>typeof n==='number'&&Number.isSafeInteger(n)&&n>=min;
 export function requireThat(ok:unknown,message:string):asserts ok {if(!ok)throw new DomainError(message)}
-export function stateHash(s:Snapshot){return createHash('sha256').update(JSON.stringify({parts:s.parts,files:s.files,plates:s.plates,jobs:s.jobs,purchasing:s.purchasing,acquisition:s.acquisition})).digest('hex')}
+export function stateHash(s:Snapshot){return createHash('sha256').update(JSON.stringify({parts:s.parts,files:s.files,plates:s.plates,jobs:s.jobs,purchasing:s.purchasing,acquisition:s.acquisition,...(s.assembly?{assembly:s.assembly}:{})})).digest('hex')}
 export function status(part:{required:number|null;accepted:number}){return part.required===null?'unconfirmed':part.accepted>=part.required?'completed':part.accepted>0?'partial':'not-printed'}
 export function recalculate(s:Snapshot){for(const p of s.parts)p.accepted=p.fabrication?p.fabrication.completed:p.opening+s.jobs.filter(j=>j.status==='Completed').flatMap(j=>j.items).filter(i=>i.partId===p.id&&integer(i.accepted)&&integer(i.rejected)&&(i.accepted??0)+(i.rejected??0)===i.planned).reduce((n,i)=>n+i.accepted!,0)}
 function validateResults(job:Job,results:ResultInput[],complete:boolean){
@@ -20,6 +21,16 @@ function validateResults(job:Job,results:ResultInput[],complete:boolean){
 export function applyCommand(original:Snapshot,command:Command,config:BuildConfig,sourceHashes:Record<string,string|null>,now=new Date().toISOString()):{state:Snapshot;target:string;summary:string}{
  const s=structuredClone(original);let target='',summary='';
  requireThat(command&&typeof command.type==='string','Choose a valid action.');
+ if(command.type==='save-assembly'){
+  requireThat(config.active&&config.store.kind==='sqlite'&&config.assembly?.manual===manual.id,'Assembly is read-only or unavailable.');
+  requireThat(manual.steps.some(step=>step.id===command.stepId),'Assembly step not found.');
+  requireThat(typeof command.completed==='boolean','Completion must be true or false.');
+  requireThat(typeof command.notes==='string'&&command.notes.length<=4000,'Notes must be text of at most 4000 characters.');
+  const previous=s.assembly?.find(r=>r.id===command.stepId);
+  const record={id:command.stepId,completed:command.completed,notes:command.notes,updatedAt:now,completedAt:command.completed?(previous?.completedAt||now):''};
+  s.assembly=[...(s.assembly||[]).filter(r=>r.id!==command.stepId),record].sort((a,b)=>a.id.localeCompare(b.id));
+  return {state:s,target:command.stepId,summary:'Saved assembly '+command.stepId};
+ }
  if(command.type==='save-acquisition'){
   requireThat(config.active&&s.acquisition,'Purchasing is read-only or unavailable.');
   const part=s.acquisition.parts.find(p=>p.id===command.partId);requireThat(part,'Part not found.');

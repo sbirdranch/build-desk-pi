@@ -2,9 +2,9 @@
 
 ## Application Description
 
-Build Desk tracks workshop model builds through Printing and Purchasing, with separate completion records for fabricated components. This guide covers the Raspberry Pi deployment only. The current installation serves **Kitten 745** and **Kitten 980 Loader** at **http://192.168.0.119:4174/** on the home LAN.
+Build Desk tracks workshop model builds through Printing, Purchasing and Assembly, with separate completion records for fabricated components. This guide covers the Raspberry Pi deployment only. The current installation serves **Kitten 745** and **Kitten 980 Loader** at **http://192.168.0.119:4174/** on the home LAN.
 
-A Node.js 24 server runs Next.js and React on the Pi. Tracking lives in a local SQLite database (schema 5), with independent build records and shared vendor suggestions and printer identity. Saved 3MF projects live on the read-only NAS mount; generated geometry, images and reference caches live on the Pi. Bambu Studio runs separately on Windows. The application neither slices projects nor sends prints to the printer. Excel is not required; workbook support remains for migration compatibility.
+A Node.js 24 server runs Next.js and React on the Pi. Tracking lives in a local SQLite database (schema 6), with independent build records and shared vendor suggestions and printer identity. Saved 3MF projects live on the read-only NAS mount; generated geometry, images and reference caches live on the Pi. Bambu Studio runs separately on Windows. The application neither slices projects nor sends prints to the printer. Excel is not required; workbook support remains for migration compatibility.
 
 ```mermaid
 flowchart LR
@@ -53,7 +53,15 @@ Ordered is an independent marker. Each toggle asks whether to update the order d
 
 A dashed gray circle indicates unavailable, a green ring indicates Ordered, and solid green indicates Available. Available takes display precedence over Ordered. The overview shows available units and ordered part types. **Parts Source List** and **Parts Status** export landscape PDFs for every part in the selected build regardless of filters. Source-report product and alternate links are clickable; status groups list each part once under Not Yet Available, Ordered or Available.
 
-Purchasing is maintained manually. There are no email, Drive, shipment or receipt integrations. Assembly is reserved and disabled.
+Purchasing is maintained manually. There are no email, Drive, shipment or receipt integrations.
+
+### Assembly
+
+Open Assembly for overall and phase progress, then select a step or continue with the first remaining item. The Kitten 745 manual contains 98 work items, including Step 89b. Open the instruction PDF from the overview or jump to the selected step's source page. Reference drawings are linked from the overview.
+
+Mark a step completed and enter work item notes, then choose **Save step**. Completion and notes are independent for each build. Navigation offers Save, Discard or Stay for unsaved changes. Archived builds and narrow screens are read-only. Assembly completion does not change Printing quantities or Purchasing stock.
+
+Assembly requires schema 6 and an explicitly configured Kitten 745 manual. Builds without one show an unavailable message. See [Assembly setup and validation](docs/assembly/implementation.md) for the backup-first upgrade and PDF configuration; the source PDF must be transferred separately from Git.
 
 ## How to Load and Start
 
@@ -90,7 +98,7 @@ mkdir -p local-data assets/generated
 cp config/builds.pi.example.json local-data/builds.pi.json
 ```
 
-The example is configuration only: it creates no database, builds or assets. Restore a consistent schema-5 database, its matching registry and asset directories from backup, or complete the offline import process below. Edit the private registry to point to those actual paths and build IDs. Do not start against an empty placeholder or copy the tracked legacy `config/builds.json` as production configuration.
+The example is configuration only: it creates no database, builds or assets. Restore a consistent schema-6 database, its matching registry and asset directories from backup, or complete the offline import process below. Edit the private registry to point to those actual paths and build IDs. Do not start against an empty placeholder or copy the tracked legacy `config/builds.json` as production configuration.
 
 Mount the NAS read-only at `/mnt/builddesk` and verify the service user can read every configured project. `tools/configure-pi-nas.sh` and `deploy/nas/` provide the existing mount setup; enter credentials locally and keep them outside Git. Use the user-service template for the established installation:
 

@@ -1,6 +1,6 @@
 // SQLite schema for Build Desk v2. A new database starts at schema version 1.
 // This module intentionally has no runtime or Excel dependencies.
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 export const SCHEMA_SQL = `
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -111,6 +111,14 @@ CREATE TABLE IF NOT EXISTS purchase_parts (
   FOREIGN KEY(vendor_id) REFERENCES vendors(id) ON DELETE RESTRICT,
   CHECK(length(notes) <= 200)
 );
+CREATE TABLE IF NOT EXISTS assembly_steps (
+ build_id TEXT NOT NULL REFERENCES builds(id) ON DELETE RESTRICT,
+ manual_id TEXT NOT NULL, step_id TEXT NOT NULL,
+ completed INTEGER NOT NULL CHECK(completed IN (0,1)),
+ notes TEXT NOT NULL DEFAULT '' CHECK(length(notes)<=4000),
+ updated_at TEXT NOT NULL, completed_at TEXT NOT NULL DEFAULT '',
+ PRIMARY KEY(build_id,manual_id,step_id)
+);
 CREATE TABLE IF NOT EXISTS write_requests (
   build_id TEXT NOT NULL, request_id TEXT NOT NULL, command_type TEXT NOT NULL,
   summary TEXT NOT NULL, committed_at TEXT NOT NULL, revision INTEGER NOT NULL,
@@ -154,7 +162,7 @@ export function initializeSchema(db) {
  try {
   db.exec(SCHEMA_SQL);
   if(!db.prepare('PRAGMA table_info(purchase_parts)').all().some(c=>c.name==='alternate_url'))db.exec("ALTER TABLE purchase_parts ADD COLUMN alternate_url TEXT NOT NULL DEFAULT ''");
-  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Add persistent alternate purchasing URL',new Date().toISOString());
+  if(!found?.version||found.version<SCHEMA_VERSION)db.prepare('INSERT INTO schema_migrations VALUES(?,?,?)').run(SCHEMA_VERSION,'Add build-scoped assembly tracking',new Date().toISOString());
   if(db.prepare('PRAGMA foreign_key_check').all().length)throw Error('SQLite foreign key validation failed');
   db.exec('COMMIT');
  }catch(e){db.exec('ROLLBACK');throw e;}

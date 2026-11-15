@@ -70,6 +70,6 @@ test('schema 4 upgrade preserves existing purchasing data and initializes blank 
   db.exec("ALTER TABLE purchase_parts DROP COLUMN alternate_url; DELETE FROM schema_migrations; INSERT INTO schema_migrations VALUES(4,'previous','today')");
   const before=db.prepare('SELECT * FROM purchase_parts').get();initializeSchema(db);initializeSchema(db);
   const after=db.prepare('SELECT * FROM purchase_parts').get()!;assert.equal(after.alternate_url,'');delete after.alternate_url;assert.deepEqual(after,before);
-  assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get()?.v,5);
+  assert.equal(db.prepare('SELECT MAX(version) v FROM schema_migrations').get()?.v,6);
  }finally{db.close()}
 });

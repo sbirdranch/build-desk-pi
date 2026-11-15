@@ -1,0 +1,40 @@
+'use client';
+import {useCallback,useEffect,useState} from 'react';
+import {Search,Check,ArrowLeft,BookOpen} from 'lucide-react';
+import type {BuildView,Command} from '@/core/types';
+import {assemblyProgress,manual} from '@/core/assembly';
+import InstrumentGauge from './InstrumentGauge';
+import {Modal} from './Media';
+type Guard=(next:()=>void)=>void;
+export default function Assembly({view,editable,busy,perform,onDirty,onNavigationGuard}:{view:BuildView;editable:boolean;busy:boolean;perform:(c:Command)=>Promise<boolean>;onDirty:(v:boolean)=>void;onNavigationGuard:(g:Guard|null)=>void}){
+ const [selected,setSelected]=useState(''),[query,setQuery]=useState(''),[filter,setFilter]=useState('all'),[phase,setPhase]=useState('all');
+ const [fields,setFields]=useState({completed:false,notes:''}),[pending,setPending]=useState<(()=>void)|null>(null);
+ const records=view.snapshot.assembly||[],step=manual.steps.find(s=>s.id===selected),record=records.find(r=>r.id===selected);
+ const original={completed:record?.completed||false,notes:record?.notes||''};
+ const dirty=!!step&&JSON.stringify(fields)!==JSON.stringify(original);
+ const navigate=useCallback((next:()=>void)=>{if(busy)return;if(dirty)setPending(()=>next);else next()},[busy,dirty]);
+ useEffect(()=>{onDirty(dirty);return()=>onDirty(false)},[dirty,onDirty]);
+ useEffect(()=>{onNavigationGuard(navigate);return()=>onNavigationGuard(null)},[navigate,onNavigationGuard]);
+ useEffect(()=>{if(!dirty)setFields(original)},[view.snapshot.revision]);
+ const choose=(id='')=>navigate(()=>{const r=records.find(r=>r.id===id);setSelected(id);setFields({completed:r?.completed||false,notes:r?.notes||''})});
+ async function save(){if(!editable||!step)return false;return perform({type:'save-assembly',stepId:step.id,...fields})}
+ const configured=view.config.assembly?.manual===manual.id;
+ const progress=assemblyProgress(records);
+ const url='/api/builds/'+encodeURIComponent(view.config.id)+'/assembly/manual';
+ const link=(page=1)=>url+'#page='+page;
+ const list=manual.steps.filter(s=>(phase==='all'||s.phase===Number(phase))&&(filter==='all'||(records.some(r=>r.id===s.id&&r.completed)?filter==='completed':filter==='remaining'))&&(`${s.label} ${manual.phases[s.phase-1]} ${records.find(r=>r.id===s.id)?.notes||''}`).toLowerCase().includes(query.toLowerCase()));
+ if(!configured)return <main className="detail"><h1>Assembly</h1><p>No assembly manual is configured for this build.</p></main>;
+ return <div className="workspace acquisition-workspace assembly-workspace"><aside className="sidebar acquisition-sidebar">
+  <button className={'acquisition-overview'+(!selected?' active':'')} onClick={()=>choose()}><BookOpen size={17}/>Assembly overview</button>
+  <label className="search"><Search size={16}/><input aria-label="Search assembly steps" placeholder="Search steps or notes..." value={query} onChange={e=>setQuery(e.target.value)}/></label>
+  <label className="assembly-phase-filter">Phase<select aria-label="Assembly phase" value={phase} onChange={e=>setPhase(e.target.value)}><option value="all">All phases</option>{manual.phases.map((name,i)=><option key={name} value={i+1}>{i+1}. {name}</option>)}</select></label>
+  <div className="acquisition-filters">{[['all','All'],['remaining','Remaining'],['completed','Completed']].map(([id,label])=><button key={id} aria-pressed={filter===id} className={filter===id?'active':''} onClick={()=>setFilter(id)}>{label}</button>)}</div>
+  <div className="acquisition-list-heading"><span>STEPS</span><span>{list.length} / {manual.steps.length}</span></div>
+  <div className="acquisition-list">{list.map(s=><button key={s.id} className={'acquisition-row'+(s.id===selected?' selected':'')} aria-pressed={s.id===selected} onClick={()=>choose(s.id)}><span><strong>{s.label}</strong><small>{manual.phases[s.phase-1]}</small></span><span className="assembly-step-status">{records.some(r=>r.id===s.id&&r.completed)?<Check aria-label="Completed" size={18}/>:<span aria-label="Remaining">○</span>}</span></button>)}{!list.length&&<p className="muted">No steps match this view.</p>}</div>
+ </aside><main className="detail acquisition-detail">
+  <div className="page-heading"><div><p className="eyebrow">{view.config.name}</p><h1>{step?step.label:'Assembly'}</h1></div><a className="assembly-pdf-link" href={link(step?.page)} target="_blank" rel="noreferrer">Open instruction PDF{step?' · page '+step.page:''}</a></div>
+  {!step?<><p className="muted">Follow the five build phases and keep your workshop notes with each step.</p><div className="acquisition-gauges"><div className="acquisition-gauge-card"><InstrumentGauge label="Assembly complete" value={progress.percent} detail={`${progress.completed} of ${progress.total} steps complete`}/><button disabled={!progress.next||busy} onClick={()=>choose(progress.next?.id)}>Continue{progress.next?' with '+progress.next.label:' · all steps complete'}</button></div><div className="assembly-overview-summary"><h2>Build progress</h2><p><strong>{progress.total-progress.completed}</strong> steps remaining</p><p><strong>{records.filter(r=>r.notes).length}</strong> {records.filter(r=>r.notes).length===1?'step':'steps'} with notes</p><p className="muted small">Completion is recorded separately for each build. Step 89b is included.</p></div></div>
+   <div className="summary-list">{manual.phases.map((name,i)=>{const p=assemblyProgress(records,i+1);return <button className="summary-row assembly-phase-row" key={name} onClick={()=>{setPhase(String(i+1));setFilter('all');setQuery('');if(p.next)choose(p.next.id);else choose(manual.steps.find(s=>s.phase===i+1)!.id)}}><span><strong>{i+1}. {name}</strong><small>{p.completed} / {p.total} steps complete</small></span><progress aria-label={name+' completion'} max={p.total} value={p.completed}/></button>})}</div><h2>Reference drawings</h2><div className="actions">{manual.references.map(r=><a key={r.page} href={link(r.page)} target="_blank" rel="noreferrer">{r.label} · page {r.page}</a>)}</div>
+  </>:<><button onClick={()=>choose()} disabled={busy}><ArrowLeft size={16}/>Assembly overview</button><p className="eyebrow">Phase {step.phase} · {manual.phases[step.phase-1]}</p><p>Use the original instruction drawing on <a href={link(step.page)} target="_blank" rel="noreferrer">PDF page {step.page}</a>.</p><div className="assembly-work-item"><label className="assembly-completion"><input type="checkbox" disabled={!editable||busy} checked={fields.completed} onChange={e=>setFields({...fields,completed:e.target.checked})}/>Step completed</label><label>Work item notes<textarea aria-label="Work item notes" maxLength={4000} rows={8} disabled={!editable||busy} value={fields.notes} onChange={e=>setFields({...fields,notes:e.target.value})}/></label><small className="muted">{fields.notes.length} / 4000 characters{record?.updatedAt?' · Last saved '+new Date(record.updatedAt).toLocaleString():''}</small><div className="save-bar"><span role="status">{busy?'Saving...':dirty?'Unsaved changes':'Step details'}</span><button disabled={busy||!dirty} onClick={()=>setFields(original)}>Discard</button><button className="primary" disabled={busy||!editable||!dirty} onClick={save}>Save step</button></div></div><div className="actions"><button disabled={busy||manual.steps.indexOf(step)===0} onClick={()=>choose(manual.steps[manual.steps.indexOf(step)-1]?.id)}>Previous step</button><button disabled={busy||manual.steps.indexOf(step)===manual.steps.length-1} onClick={()=>choose(manual.steps[manual.steps.indexOf(step)+1]?.id)}>Next step</button></div>{!editable&&<p className="muted">This view is read-only.</p>}</>}
+ </main>{pending&&<Modal title="Unsaved assembly changes" onClose={()=>setPending(null)}><p>Save your changes before leaving this step?</p><div className="actions"><button disabled={busy} onClick={()=>setPending(null)}>Stay here</button><button disabled={busy} onClick={()=>{const go=pending;setPending(null);go()}}>Discard changes</button><button className="primary" disabled={busy||!editable} onClick={async()=>{if(await save()){const go=pending;setPending(null);go()}}}>Save and continue</button></div></Modal>}</div>;
+}

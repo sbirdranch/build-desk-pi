@@ -78,7 +78,10 @@ export class SQLiteStore {
      if(occupied)throw new DomainError('This printer already has a tracked print in '+occupied.name+'.',409);
     }
     const changed=applyCommand(current,command,this.config,sourceHashes);
-    if(command.type==='save-acquisition'){
+    if(command.type==='save-assembly'){
+     const r=changed.state.assembly!.find(r=>r.id===command.stepId)!;
+     db.prepare('INSERT INTO assembly_steps VALUES(?,?,?,?,?,?,?) ON CONFLICT(build_id,manual_id,step_id) DO UPDATE SET completed=excluded.completed,notes=excluded.notes,updated_at=excluded.updated_at,completed_at=excluded.completed_at').run(this.config.id,this.config.assembly!.manual,r.id,Number(r.completed),r.notes,r.updatedAt,r.completedAt);
+    }else if(command.type==='save-acquisition'){
      const p=changed.state.acquisition!.parts.find(p=>p.id===command.partId)!;
      let vendorId:number|null=null;
      if(p.vendor){db.prepare('INSERT OR IGNORE INTO vendors(display_name,normalized_name) VALUES(?,?)').run(p.vendor,vendorKey(p.vendor));vendorId=Number(db.prepare('SELECT id FROM vendors WHERE normalized_name=?').get(vendorKey(p.vendor))!.id);}

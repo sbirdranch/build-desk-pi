@@ -1,0 +1,616 @@
+{
+  "id": "kitten-745",
+  "sha256": "2bc796118c4db721f58a93cf569901ce572667ed8274d69c6ef927487887bcb7",
+  "pages": 87,
+  "phases": [
+    "Front Chassis",
+    "Rear Chassis",
+    "Tipperbox",
+    "Cabin",
+    "Final Steps"
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "label": "Step 1",
+      "phase": 1,
+      "page": 2
+    },
+    {
+      "id": "step-2",
+      "label": "Step 2",
+      "phase": 1,
+      "page": 2
+    },
+    {
+      "id": "step-3",
+      "label": "Step 3",
+      "phase": 1,
+      "page": 3
+    },
+    {
+      "id": "step-4",
+      "label": "Step 4",
+      "phase": 1,
+      "page": 4
+    },
+    {
+      "id": "step-5",
+      "label": "Step 5",
+      "phase": 1,
+      "page": 5
+    },
+    {
+      "id": "step-6",
+      "label": "Step 6",
+      "phase": 1,
+      "page": 6
+    },
+    {
+      "id": "step-7",
+      "label": "Step 7",
+      "phase": 1,
+      "page": 7
+    },
+    {
+      "id": "step-8",
+      "label": "Step 8",
+      "phase": 1,
+      "page": 8
+    },
+    {
+      "id": "step-9",
+      "label": "Step 9",
+      "phase": 1,
+      "page": 8
+    },
+    {
+      "id": "step-10",
+      "label": "Step 10",
+      "phase": 1,
+      "page": 9
+    },
+    {
+      "id": "step-11",
+      "label": "Step 11",
+      "phase": 1,
+      "page": 9
+    },
+    {
+      "id": "step-12",
+      "label": "Step 12",
+      "phase": 1,
+      "page": 10
+    },
+    {
+      "id": "step-13",
+      "label": "Step 13",
+      "phase": 1,
+      "page": 11
+    },
+    {
+      "id": "step-14",
+      "label": "Step 14",
+      "phase": 1,
+      "page": 12
+    },
+    {
+      "id": "step-15",
+      "label": "Step 15",
+      "phase": 1,
+      "page": 13
+    },
+    {
+      "id": "step-16",
+      "label": "Step 16",
+      "phase": 1,
+      "page": 14
+    },
+    {
+      "id": "step-17",
+      "label": "Step 17",
+      "phase": 1,
+      "page": 15
+    },
+    {
+      "id": "step-18",
+      "label": "Step 18",
+      "phase": 1,
+      "page": 16
+    },
+    {
+      "id": "step-19",
+      "label": "Step 19",
+      "phase": 1,
+      "page": 17
+    },
+    {
+      "id": "step-20",
+      "label": "Step 20",
+      "phase": 1,
+      "page": 17
+    },
+    {
+      "id": "step-21",
+      "label": "Step 21",
+      "phase": 1,
+      "page": 18
+    },
+    {
+      "id": "step-22",
+      "label": "Step 22",
+      "phase": 1,
+      "page": 18
+    },
+    {
+      "id": "step-23",
+      "label": "Step 23",
+      "phase": 1,
+      "page": 19
+    },
+    {
+      "id": "step-24",
+      "label": "Step 24",
+      "phase": 1,
+      "page": 20
+    },
+    {
+      "id": "step-25",
+      "label": "Step 25",
+      "phase": 2,
+      "page": 21
+    },
+    {
+      "id": "step-26",
+      "label": "Step 26",
+      "phase": 2,
+      "page": 21
+    },
+    {
+      "id": "step-27",
+      "label": "Step 27",
+      "phase": 2,
+      "page": 22
+    },
+    {
+      "id": "step-28",
+      "label": "Step 28",
+      "phase": 2,
+      "page": 23
+    },
+    {
+      "id": "step-29",
+      "label": "Step 29",
+      "phase": 2,
+      "page": 23
+    },
+    {
+      "id": "step-30",
+      "label": "Step 30",
+      "phase": 2,
+      "page": 24
+    },
+    {
+      "id": "step-31",
+      "label": "Step 31",
+      "phase": 2,
+      "page": 25
+    },
+    {
+      "id": "step-32",
+      "label": "Step 32",
+      "phase": 2,
+      "page": 25
+    },
+    {
+      "id": "step-33",
+      "label": "Step 33",
+      "phase": 2,
+      "page": 26
+    },
+    {
+      "id": "step-34",
+      "label": "Step 34",
+      "phase": 2,
+      "page": 26
+    },
+    {
+      "id": "step-35",
+      "label": "Step 35",
+      "phase": 2,
+      "page": 27
+    },
+    {
+      "id": "step-36",
+      "label": "Step 36",
+      "phase": 2,
+      "page": 28
+    },
+    {
+      "id": "step-37",
+      "label": "Step 37",
+      "phase": 2,
+      "page": 29
+    },
+    {
+      "id": "step-38",
+      "label": "Step 38",
+      "phase": 2,
+      "page": 30
+    },
+    {
+      "id": "step-39",
+      "label": "Step 39",
+      "phase": 2,
+      "page": 31
+    },
+    {
+      "id": "step-40",
+      "label": "Step 40",
+      "phase": 2,
+      "page": 31
+    },
+    {
+      "id": "step-41",
+      "label": "Step 41",
+      "phase": 2,
+      "page": 32
+    },
+    {
+      "id": "step-42",
+      "label": "Step 42",
+      "phase": 2,
+      "page": 33
+    },
+    {
+      "id": "step-43",
+      "label": "Step 43",
+      "phase": 2,
+      "page": 34
+    },
+    {
+      "id": "step-44",
+      "label": "Step 44",
+      "phase": 2,
+      "page": 35
+    },
+    {
+      "id": "step-45",
+      "label": "Step 45",
+      "phase": 2,
+      "page": 35
+    },
+    {
+      "id": "step-46",
+      "label": "Step 46",
+      "phase": 2,
+      "page": 36
+    },
+    {
+      "id": "step-47",
+      "label": "Step 47",
+      "phase": 2,
+      "page": 37
+    },
+    {
+      "id": "step-48",
+      "label": "Step 48",
+      "phase": 2,
+      "page": 38
+    },
+    {
+      "id": "step-49",
+      "label": "Step 49",
+      "phase": 2,
+      "page": 39
+    },
+    {
+      "id": "step-50",
+      "label": "Step 50",
+      "phase": 2,
+      "page": 40
+    },
+    {
+      "id": "step-51",
+      "label": "Step 51",
+      "phase": 2,
+      "page": 41
+    },
+    {
+      "id": "step-52",
+      "label": "Step 52",
+      "phase": 2,
+      "page": 42
+    },
+    {
+      "id": "step-53",
+      "label": "Step 53",
+      "phase": 2,
+      "page": 43
+    },
+    {
+      "id": "step-54",
+      "label": "Step 54",
+      "phase": 2,
+      "page": 43
+    },
+    {
+      "id": "step-55",
+      "label": "Step 55",
+      "phase": 2,
+      "page": 44
+    },
+    {
+      "id": "step-56",
+      "label": "Step 56",
+      "phase": 2,
+      "page": 45
+    },
+    {
+      "id": "step-57",
+      "label": "Step 57",
+      "phase": 2,
+      "page": 46
+    },
+    {
+      "id": "step-58",
+      "label": "Step 58",
+      "phase": 2,
+      "page": 47
+    },
+    {
+      "id": "step-59",
+      "label": "Step 59",
+      "phase": 2,
+      "page": 48
+    },
+    {
+      "id": "step-60",
+      "label": "Step 60",
+      "phase": 2,
+      "page": 49
+    },
+    {
+      "id": "step-61",
+      "label": "Step 61",
+      "phase": 2,
+      "page": 50
+    },
+    {
+      "id": "step-62",
+      "label": "Step 62",
+      "phase": 2,
+      "page": 51
+    },
+    {
+      "id": "step-63",
+      "label": "Step 63",
+      "phase": 2,
+      "page": 52
+    },
+    {
+      "id": "step-64",
+      "label": "Step 64",
+      "phase": 2,
+      "page": 53
+    },
+    {
+      "id": "step-65",
+      "label": "Step 65",
+      "phase": 2,
+      "page": 54
+    },
+    {
+      "id": "step-66",
+      "label": "Step 66",
+      "phase": 2,
+      "page": 55
+    },
+    {
+      "id": "step-67",
+      "label": "Step 67",
+      "phase": 2,
+      "page": 55
+    },
+    {
+      "id": "step-68",
+      "label": "Step 68",
+      "phase": 3,
+      "page": 56
+    },
+    {
+      "id": "step-69",
+      "label": "Step 69",
+      "phase": 3,
+      "page": 57
+    },
+    {
+      "id": "step-70",
+      "label": "Step 70",
+      "phase": 3,
+      "page": 58
+    },
+    {
+      "id": "step-71",
+      "label": "Step 71",
+      "phase": 3,
+      "page": 59
+    },
+    {
+      "id": "step-72",
+      "label": "Step 72",
+      "phase": 3,
+      "page": 60
+    },
+    {
+      "id": "step-73",
+      "label": "Step 73",
+      "phase": 3,
+      "page": 60
+    },
+    {
+      "id": "step-74",
+      "label": "Step 74",
+      "phase": 3,
+      "page": 61
+    },
+    {
+      "id": "step-75",
+      "label": "Step 75",
+      "phase": 3,
+      "page": 62
+    },
+    {
+      "id": "step-76",
+      "label": "Step 76",
+      "phase": 3,
+      "page": 63
+    },
+    {
+      "id": "step-77",
+      "label": "Step 77",
+      "phase": 3,
+      "page": 64
+    },
+    {
+      "id": "step-78",
+      "label": "Step 78",
+      "phase": 3,
+      "page": 65
+    },
+    {
+      "id": "step-79",
+      "label": "Step 79",
+      "phase": 3,
+      "page": 66
+    },
+    {
+      "id": "step-80",
+      "label": "Step 80",
+      "phase": 4,
+      "page": 68
+    },
+    {
+      "id": "step-81",
+      "label": "Step 81",
+      "phase": 4,
+      "page": 69
+    },
+    {
+      "id": "step-82",
+      "label": "Step 82",
+      "phase": 4,
+      "page": 70
+    },
+    {
+      "id": "step-83",
+      "label": "Step 83",
+      "phase": 4,
+      "page": 71
+    },
+    {
+      "id": "step-84",
+      "label": "Step 84",
+      "phase": 4,
+      "page": 72
+    },
+    {
+      "id": "step-85",
+      "label": "Step 85",
+      "phase": 4,
+      "page": 73
+    },
+    {
+      "id": "step-86",
+      "label": "Step 86",
+      "phase": 4,
+      "page": 73
+    },
+    {
+      "id": "step-87",
+      "label": "Step 87",
+      "phase": 4,
+      "page": 74
+    },
+    {
+      "id": "step-88",
+      "label": "Step 88",
+      "phase": 4,
+      "page": 75
+    },
+    {
+      "id": "step-89",
+      "label": "Step 89",
+      "phase": 5,
+      "page": 76
+    },
+    {
+      "id": "step-89b",
+      "label": "Step 89b",
+      "phase": 5,
+      "page": 77
+    },
+    {
+      "id": "step-90",
+      "label": "Step 90",
+      "phase": 5,
+      "page": 78
+    },
+    {
+      "id": "step-91",
+      "label": "Step 91",
+      "phase": 5,
+      "page": 79
+    },
+    {
+      "id": "step-92",
+      "label": "Step 92",
+      "phase": 5,
+      "page": 80
+    },
+    {
+      "id": "step-93",
+      "label": "Step 93",
+      "phase": 5,
+      "page": 81
+    },
+    {
+      "id": "step-94",
+      "label": "Step 94",
+      "phase": 5,
+      "page": 82
+    },
+    {
+      "id": "step-95",
+      "label": "Step 95",
+      "phase": 5,
+      "page": 83
+    },
+    {
+      "id": "step-96",
+      "label": "Step 96",
+      "phase": 5,
+      "page": 84
+    },
+    {
+      "id": "step-97",
+      "label": "Step 97",
+      "phase": 5,
+      "page": 85
+    }
+  ],
+  "references": [
+    {
+      "label": "Steel plate",
+      "page": 67
+    },
+    {
+      "label": "Electronics overview",
+      "page": 86
+    },
+    {
+      "label": "Dimensions",
+      "page": 87
+    }
+  ]
+}

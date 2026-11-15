@@ -33,8 +33,13 @@
       },
       "modules": [
         "printing",
-        "purchasing"
-      ]
+        "purchasing",
+        "assembly"
+      ],
+      "assembly": {
+        "manual": "kitten-745",
+        "pdf": "local-data/manuals/kitten-745.pdf"
+      }
     }
   ]
 }
