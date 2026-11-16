@@ -18,9 +18,15 @@ test('plate preview retains its existing image and model switch',()=>{
  assert.match(html,/>Image</);
  assert.match(html,/>Rotate model</);
 });
-test('a part without a model has an empty preview and disabled Reset without a still image',()=>{
+test('a part without a model falls back to its full-size image with disabled Reset',()=>{
  const html=renderToStaticMarkup(createElement(ModelPreview,{buildId:'build',asset:{...asset,model:undefined},interactiveOnly:true}));
- assert.match(html,/Preview not available/);
+ assert.match(html,/<img[^>]+src="\/api\/assets\/build\/part.png"/);
  assert.match(html,/<button disabled="">Reset view</);
+ assert.doesNotMatch(html,/model-canvas/);
+});
+
+test('missing image and model shows an explicit empty preview',()=>{
+ const html=renderToStaticMarkup(createElement(ModelPreview,{buildId:'build',asset:{...asset,model:undefined,preview:''},interactiveOnly:true}));
+ assert.match(html,/Preview not available/);
  assert.doesNotMatch(html,/<img|model-canvas/);
 });
